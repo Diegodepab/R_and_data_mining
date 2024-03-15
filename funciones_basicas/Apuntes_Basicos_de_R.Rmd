@@ -1,0 +1,274 @@
+---
+title: "Apuntes_basicos"
+subtitle: "Curso de introducción a R"
+author:
+- name: "Diego De Pablo (Diegodepab)"
+  affiliation: "Universidade da Málaga"
+date: "2024-03-013"
+logo: rmarkdown.png
+output:
+  html_document:
+    toc: yes                  # incluir tabla de contenido
+    toc_float: no            # toc flotante a la izquierda
+    number_sections: yes      # numerar secciones y subsecciones
+    code_folding: show        # por defecto el código aparecerá mostrada
+    mathjax: local            # emplea una copia local de MathJax, hay que establecer:
+    self_contained: false     # las dependencias se guardan en ficheros externos
+    lib_dir: libs             # directorio para librerías (Bootstrap, MathJax, ...)
+  pdf_document:
+    toc: yes
+    toc_depth: 2
+    keep_tex: yes             # conservar fichero latex
+fontsize: 12pt
+lang: es
+---
+
+## Basic
+Esto son unos apuntes que tengo para recordarme las bases de R, es muy informal ya que solo quería recordar
+todos los comandos de R además de empezar a practicar con R markdown 
+
+asignacion usamos ejemplo=5 o ejemplo \<- 5 (usando el atajo de teclado alt + -) hipotenusa \<- 5 #en tools, modify, insert assigment operator alt x)
+para comprobar cualquier información de algún paquete podemos usar ?plot o ?(paquete)
+
+```{r asignacion_variable}
+entero <- 5 #en tools, modify, insert assigment operator alt x) 
+entero
+decimal <- 3.14159268
+decimal
+```
+
+# Operaciones_Basicas
+
+```{r Operaciones_Basicas}
+entero + 10
+entero - 10
+entero / 10
+entero *10
+entero**2 #potencia
+entero %%3 #modulo
+#decimales
+ceiling(decimal) #aproxima para arriba
+floor(decimal) #redondea para abajo
+trunc(decimal) #elimina la parte decimal 
+
+```
+
+# string
+
+```{r string}
+usuario <-  "Alvaro 123456"
+usuario
+nchar(usuario) #nos dice la cantidad de caracteres del string
+tolower(usuario) #convierte todo en minusculas
+toupper(usuario) #convierte todo en mayusculas
+substr(usuario, 1,6) #subcadena del string original
+strsplit(usuario, split="") #uso de split en R
+sub("Alvaro","Diego",usuario) #sustituir la primera concurrencia
+ADN <- "AAATTTTGGGCCGCGCATTACGAGCT"
+gsub("T","U",ADN) #Cambia todas las concurrencias
+paste(usuario, "Su ADN ES:", ADN, sep = "_") #concatenar
+
+```
+
+# Logicos
+
+```{r Logicos}
+mentira <- usuario=="hermoso"
+mentira
+verdad <-  usuario=="Alvaro 123456" & decimal<=15
+verdad
+booleano <-  usuario!="hermoso" | decimal!=3
+booleano
+!grepl("Alvaro",usuario) #pregunta si contiene este substring devuelve true
+
+any(strsplit(usuario, split="")[[1]] %in% 0:9) #pregunta si hay algún digito en el string
+
+!grepl("[^ATGC]", ADN) #Devuelve TRUE si la cadena de texto solo tiene los valores dichos
+
+
+```
+# Vectores:
+```{r Vectores}
+#creacion
+vector_vacio <- vector() #crea el vector vacio
+vector_lleno <- c(5,3,4,2,1,0)
+vector_str <- c("Mario", "Diego", "Alvaro","Zoe","Zo3") 
+vector_logico <- c(TRUE,F,FALSE,TRUE)
+#manipulacion
+length(vector_lleno) #Cuenta desde el 1 hasta el N elemento del vector
+max(vector_lleno) #dara el mayor elemento del vector
+max(vector_str) #dara el nombre cuya letras iniciales sean ultimas en el alfabeto, tambien existe la funcion min()
+mean(vector_lleno) #Promedio de los elementos del vector
+mean(vector_logico) #Promedio de elementos verdaderos en el vectores (verdaderos/total)
+sum(vector_lleno) #suma todos los elementos del vector
+vector_lleno+10 #suma 10 a cada elemento del vector
+vector_lleno #comparar salida
+
+vector_str <- c(vector_str,"Marina") #agrega a Marina en el vector
+names(vector_lleno) <- vector_str #etiqueta un vector con cada elemento del segundo, el segundo debe ser menor o igual al primer vector
+vector_lleno
+sort(vector_str) #ordena de menor a mayor o de a-z
+sort(vector_str, decreasing = T) #decrescientemente 
+vector_lleno[vector_lleno>4] <- 5 #cambiamos los valores que cumplan la condicion
+``` 
+## Manejo logico de vectores
+
+```{r Vectores Logicos}
+vector_lleno >3 #nos devuelve un vector con los valores booleanos segun la condicion
+which(vector_lleno>3) #devuelve los elementos del vector que satisfagan la condicion
+any(vector_lleno<0) #devuelve true si algun elemento del vector cumple la condicion
+all(vector_lleno<100) #devuelve true si todos los elementos cumplen la condicion 
+
+```
+## Manejo de subconjuntos de vectores
+
+```{r Subconjunto de un vector}
+vector_lleno[c(1,length(vector_lleno))] #indicamos las posiciones que queremos obtener
+vector_lleno[-1] #podemos omitir un elemento
+vector_lleno[vector_lleno>3] #devuelve el subconjunto que satisfaga
+
+```
+## Vectores como conjuntos
+
+```{r Manejo de conjuntos}
+pacientes_cancer <- c("Juan", "Gonzalo", "Diego", "Pepe")
+pacientes_sida <- c("Diego", "Mario", "Alvaro")
+c(pacientes_cancer,pacientes_sida) #union + interseccion 
+union(pacientes_cancer,pacientes_sida) #union
+intersect(pacientes_cancer,pacientes_sida) #interseccion
+setdiff(pacientes_cancer,pacientes_sida) #union - interseccion 
+
+```
+## Vectores como bucles
+En este apartado me quise dar la tarea de buscar cuantos números son divisibles entre 6 y 8 entre los números 1 al 1000000
+
+```{r Vectores como bucle for}
+millon <-  1:1000000
+sum(millon %% 6 == 0 & millon %% 8==0)
+
+```
+# Convertir valores a otro tipo
+Si queremos pasar a un número usamos as.numeric, si queremos string as.character y
+si queremos logical usamos as.logical
+Todo esto es aplicable en vectores y todo lo anteriormente visto
+```{r conversion}
+#de numerico a caracter
+as.character(100)
+
+#num a logico
+as.logical(0) #false
+as.logical(2) #cualquier numero exceptuando el 0 será TRUE
+
+#de logico a caracter
+as.character(TRUE)
+
+#de logico a numerico
+as.numeric(TRUE) #TRUE ES 1 Y FALSE ES 0
+
+#de caracter a numerico
+as.numeric("122") #si ponemos un str nos dara NA
+
+```
+# Condicional if
+la sintaxis es parecida a python o java
+```{r condicional if}
+edad=17.5
+if(edad>18){
+  print("Buena suerte")
+} else{
+  print("Mala suerte")
+}
+
+```
+# Bucles
+Muy parecido a otros lenguajes también
+Sin embargo R es un lenguaje orientado a vectores es mejor usar apply que bucles
+for o while.
+```{r bucles}
+#bucle for
+for(i in 1:5){
+  cat(" Bucle for:", i)
+}
+#bucle while
+while(edad<18){
+  edad <- edad+0.1
+}
+cat("    Salio del bucle:", edad)
+```
+# funciones
+La sintaxis es muy sencilla, "nombre_funcion" = function(parametros) 
+
+```{r funciones}
+exponente <- function(num,exp=2){
+  return(num**exp)
+}
+exponente(5,2)
+cuenta_vocales <- function(string){
+  return(length(gregexpr("[AEIOUaeiou]", string)[[1]]))
+}
+cuenta_vocales("Diegodepab")
+cuenta_vocales_v2 <- function(string){
+  letras <- strsplit(toupper(string), split="")[[1]]
+  letras <- tolower(letras)
+  
+  vocales <- c("a","e","i","o","u")
+  return (sum(letras %in% vocales))
+}
+cuenta_vocales_v2("Diegodepab")
+```
+# Listas
+Muy parecido a los vectores pero mientras que un vector es una colección unidimensional de elementos del mismo tipo
+los elementos de una lista pueden ser de diferentes tipos o estructuras.
+
+```{r lista_vs_vectores}
+print("Al usar c, todo se guarda como un str")
+c(3.14615,TRUE,"Hola Mundo!")
+print("Guarda en diferentes tipos y estructuras")
+lista <- list(3.14615,TRUE,"Hola Mundo!")
+lista_nombrada <- list(numero = 8, logico=TRUE, str="Hola perdedor")
+lista_nombrada
+
+print("obteniendo entradas de una lista")
+lista_nombrada[3]
+lista_nombrada[c(1,2)]
+print("Se puede modificar valores pero es necesario usar doble corchetes")
+lista_nombrada[[1]]*10
+lista_nombrada$numero*10
+
+```
+# Dataframe
+Aqui avanzaré más adelante
+
+```{r Dataframe}
+ 
+```
+# Graficas
+Aqui avanzaré más adelante
+
+```{r graficas}
+ 
+```
+# Tidyverse
+Aqui avanzaré más adelante
+
+```{r tidyverse}
+ 
+```
+# Valores aleatorios
+A la hora de practicar nos servira bastante poder generar numeros aleatorios. 
+donde n es la cantidad, mean es la media que tendrá la distribución normal de 
+donde se tomaran valores y sd es la desviación estandar 
+
+```{r Aleatoriedad}
+set.seed(123) #Answer to the Ultimate Question of Life, The Universe, and Everything
+aleatorios <- rnorm(n=100, mean =50, sd=10) 
+```
+# Leer ficheros txt
+En minería de datos, se me recomiendo trabajar con ficheros txt más que con otos formatos, ya que a pesar de existir bibliotecas capaces de pasar archivos de todo tipo, muchas de estas nos pueden dar errores que no podamos vigilar, al ser nosotros los que pasemos a un txt y limpiemos los datos podemos contar con una mayor seguridad de lo que estamos haciendo
+```{r ficheros_excel}
+datos_cancer <- read.table(file="datosm_icb.txt",sep=" ", dec=".", header=T)
+#En file hay que escribir el path del archivo : getwd() -> obtener camino ; setwd("path") -> marcar camino
+str(datos_cancer)
+View(datos_cancer)
+
+```

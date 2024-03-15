@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<!-- saved from url=(0087)file:///C:/Users/Diego%20De%20Pablo/Downloads/Github%20borrar/Apuntes_Basicos_de_R.html -->
+<html lang="es" xml:lang="es"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+
+<meta name="generator" content="pandoc">
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE">
+
+
+
+
+<title>Apuntes_basicos</title>
+
+<script src="./Apuntes_Basicos_de_R_files/header-attrs.js.descarga"></script>
+<script src="./Apuntes_Basicos_de_R_files/jquery-3.6.0.min.js.descarga"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="./Apuntes_Basicos_de_R_files/bootstrap.min.css" rel="stylesheet">
+<script src="./Apuntes_Basicos_de_R_files/bootstrap.min.js.descarga"></script>
+<script src="./Apuntes_Basicos_de_R_files/html5shiv.min.js.descarga"></script>
+<script src="./Apuntes_Basicos_de_R_files/respond.min.js.descarga"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="./Apuntes_Basicos_de_R_files/tabsets.js.descarga"></script>
+<script src="./Apuntes_Basicos_de_R_files/codefolding.js.descarga"></script>
+<link href="./Apuntes_Basicos_de_R_files/default.css" rel="stylesheet">
+<script src="./Apuntes_Basicos_de_R_files/highlight.js.descarga"></script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type="text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+
+
+
+
+<script type="text/javascript" src="./Apuntes_Basicos_de_R_files/MathJax.js.descarga"></script><style type="text/css">.MathJax_Hover_Frame {border-radius: .25em; -webkit-border-radius: .25em; -moz-border-radius: .25em; -khtml-border-radius: .25em; box-shadow: 0px 0px 15px #83A; -webkit-box-shadow: 0px 0px 15px #83A; -moz-box-shadow: 0px 0px 15px #83A; -khtml-box-shadow: 0px 0px 15px #83A; border: 1px solid #A6D ! important; display: inline-block; position: absolute}
+.MathJax_Menu_Button .MathJax_Hover_Arrow {position: absolute; cursor: pointer; display: inline-block; border: 2px solid #AAA; border-radius: 4px; -webkit-border-radius: 4px; -moz-border-radius: 4px; -khtml-border-radius: 4px; font-family: 'Courier New',Courier; font-size: 9px; color: #F0F0F0}
+.MathJax_Menu_Button .MathJax_Hover_Arrow span {display: block; background-color: #AAA; border: 1px solid; border-radius: 3px; line-height: 0; padding: 4px}
+.MathJax_Hover_Arrow:hover {color: white!important; border: 2px solid #CCC!important}
+.MathJax_Hover_Arrow:hover span {background-color: #CCC!important}
+</style><style type="text/css">#MathJax_About {position: fixed; left: 50%; width: auto; text-align: center; border: 3px outset; padding: 1em 2em; background-color: #DDDDDD; color: black; cursor: default; font-family: message-box; font-size: 120%; font-style: normal; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; z-index: 201; border-radius: 15px; -webkit-border-radius: 15px; -moz-border-radius: 15px; -khtml-border-radius: 15px; box-shadow: 0px 10px 20px #808080; -webkit-box-shadow: 0px 10px 20px #808080; -moz-box-shadow: 0px 10px 20px #808080; -khtml-box-shadow: 0px 10px 20px #808080; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+#MathJax_About.MathJax_MousePost {outline: none}
+.MathJax_Menu {position: absolute; background-color: white; color: black; width: auto; padding: 2px; border: 1px solid #CCCCCC; margin: 0; cursor: default; font: menu; text-align: left; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; z-index: 201; box-shadow: 0px 10px 20px #808080; -webkit-box-shadow: 0px 10px 20px #808080; -moz-box-shadow: 0px 10px 20px #808080; -khtml-box-shadow: 0px 10px 20px #808080; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+.MathJax_MenuItem {padding: 2px 2em; background: transparent}
+.MathJax_MenuArrow {position: absolute; right: .5em; padding-top: .25em; color: #666666; font-size: .75em}
+.MathJax_MenuActive .MathJax_MenuArrow {color: white}
+.MathJax_MenuArrow.RTL {left: .5em; right: auto}
+.MathJax_MenuCheck {position: absolute; left: .7em}
+.MathJax_MenuCheck.RTL {right: .7em; left: auto}
+.MathJax_MenuRadioCheck {position: absolute; left: 1em}
+.MathJax_MenuRadioCheck.RTL {right: 1em; left: auto}
+.MathJax_MenuLabel {padding: 2px 2em 4px 1.33em; font-style: italic}
+.MathJax_MenuRule {border-top: 1px solid #CCCCCC; margin: 4px 1px 0px}
+.MathJax_MenuDisabled {color: GrayText}
+.MathJax_MenuActive {background-color: Highlight; color: HighlightText}
+.MathJax_MenuDisabled:focus, .MathJax_MenuLabel:focus {background-color: #E8E8E8}
+.MathJax_ContextMenu:focus {outline: none}
+.MathJax_ContextMenu .MathJax_MenuItem:focus {outline: none}
+#MathJax_AboutClose {top: .2em; right: .2em}
+.MathJax_Menu .MathJax_MenuClose {top: -10px; left: -10px}
+.MathJax_MenuClose {position: absolute; cursor: pointer; display: inline-block; border: 2px solid #AAA; border-radius: 18px; -webkit-border-radius: 18px; -moz-border-radius: 18px; -khtml-border-radius: 18px; font-family: 'Courier New',Courier; font-size: 24px; color: #F0F0F0}
+.MathJax_MenuClose span {display: block; background-color: #AAA; border: 1.5px solid; border-radius: 18px; -webkit-border-radius: 18px; -moz-border-radius: 18px; -khtml-border-radius: 18px; line-height: 0; padding: 8px 0 6px}
+.MathJax_MenuClose:hover {color: white!important; border: 2px solid #CCC!important}
+.MathJax_MenuClose:hover span {background-color: #CCC!important}
+.MathJax_MenuClose:hover:focus {outline: none}
+</style><style type="text/css">.MathJax_Preview .MJXf-math {color: inherit!important}
+</style><style type="text/css">.MJX_Assistive_MathML {position: absolute!important; top: 0; left: 0; clip: rect(1px, 1px, 1px, 1px); padding: 1px 0 0 0!important; border: 0!important; height: 1px!important; width: 1px!important; overflow: hidden!important; display: block!important; -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none}
+.MJX_Assistive_MathML.MJX_Assistive_MathML_Block {width: 100%!important}
+</style><style type="text/css">#MathJax_Zoom {position: absolute; background-color: #F0F0F0; overflow: auto; display: block; z-index: 301; padding: .5em; border: 1px solid black; margin: 0; font-weight: normal; font-style: normal; text-align: left; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; -webkit-box-sizing: content-box; -moz-box-sizing: content-box; box-sizing: content-box; box-shadow: 5px 5px 15px #AAAAAA; -webkit-box-shadow: 5px 5px 15px #AAAAAA; -moz-box-shadow: 5px 5px 15px #AAAAAA; -khtml-box-shadow: 5px 5px 15px #AAAAAA; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+#MathJax_ZoomOverlay {position: absolute; left: 0; top: 0; z-index: 300; display: inline-block; width: 100%; height: 100%; border: 0; padding: 0; margin: 0; background-color: white; opacity: 0; filter: alpha(opacity=0)}
+#MathJax_ZoomFrame {position: relative; display: inline-block; height: 0; width: 0}
+#MathJax_ZoomEventTrap {position: absolute; left: 0; top: 0; z-index: 302; display: inline-block; border: 0; padding: 0; margin: 0; background-color: white; opacity: 0; filter: alpha(opacity=0)}
+</style><style type="text/css">.MathJax_Preview {color: #888}
+#MathJax_Message {position: fixed; left: 1em; bottom: 1.5em; background-color: #E6E6E6; border: 1px solid #959595; margin: 0px; padding: 2px 8px; z-index: 102; color: black; font-size: 80%; width: auto; white-space: nowrap}
+#MathJax_MSIE_Frame {position: absolute; top: 0; left: 0; width: 0px; z-index: 101; border: 0px; margin: 0px; padding: 0px}
+.MathJax_Error {color: #CC0000; font-style: italic}
+</style><style type="text/css">.MJXp-script {font-size: .8em}
+.MJXp-right {-webkit-transform-origin: right; -moz-transform-origin: right; -ms-transform-origin: right; -o-transform-origin: right; transform-origin: right}
+.MJXp-bold {font-weight: bold}
+.MJXp-italic {font-style: italic}
+.MJXp-scr {font-family: MathJax_Script,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-frak {font-family: MathJax_Fraktur,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-sf {font-family: MathJax_SansSerif,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-cal {font-family: MathJax_Caligraphic,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-mono {font-family: MathJax_Typewriter,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-largeop {font-size: 150%}
+.MJXp-largeop.MJXp-int {vertical-align: -.2em}
+.MJXp-math {display: inline-block; line-height: 1.2; text-indent: 0; font-family: 'Times New Roman',Times,STIXGeneral,serif; white-space: nowrap; border-collapse: collapse}
+.MJXp-display {display: block; text-align: center; margin: 1em 0}
+.MJXp-math span {display: inline-block}
+.MJXp-box {display: block!important; text-align: center}
+.MJXp-box:after {content: " "}
+.MJXp-rule {display: block!important; margin-top: .1em}
+.MJXp-char {display: block!important}
+.MJXp-mo {margin: 0 .15em}
+.MJXp-mfrac {margin: 0 .125em; vertical-align: .25em}
+.MJXp-denom {display: inline-table!important; width: 100%}
+.MJXp-denom > * {display: table-row!important}
+.MJXp-surd {vertical-align: top}
+.MJXp-surd > * {display: block!important}
+.MJXp-script-box > *  {display: table!important; height: 50%}
+.MJXp-script-box > * > * {display: table-cell!important; vertical-align: top}
+.MJXp-script-box > *:last-child > * {vertical-align: bottom}
+.MJXp-script-box > * > * > * {display: block!important}
+.MJXp-mphantom {visibility: hidden}
+.MJXp-munderover, .MJXp-munder {display: inline-table!important}
+.MJXp-over {display: inline-block!important; text-align: center}
+.MJXp-over > * {display: block!important}
+.MJXp-munderover > *, .MJXp-munder > * {display: table-row!important}
+.MJXp-mtable {vertical-align: .25em; margin: 0 .125em}
+.MJXp-mtable > * {display: inline-table!important; vertical-align: middle}
+.MJXp-mtr {display: table-row!important}
+.MJXp-mtd {display: table-cell!important; text-align: center; padding: .5em 0 0 .5em}
+.MJXp-mtr > .MJXp-mtd:first-child {padding-left: 0}
+.MJXp-mtr:first-child > .MJXp-mtd {padding-top: 0}
+.MJXp-mlabeledtr {display: table-row!important}
+.MJXp-mlabeledtr > .MJXp-mtd:first-child {padding-left: 0}
+.MJXp-mlabeledtr:first-child > .MJXp-mtd {padding-top: 0}
+.MJXp-merror {background-color: #FFFF88; color: #CC0000; border: 1px solid #CC0000; padding: 1px 3px; font-style: normal; font-size: 90%}
+.MJXp-scale0 {-webkit-transform: scaleX(.0); -moz-transform: scaleX(.0); -ms-transform: scaleX(.0); -o-transform: scaleX(.0); transform: scaleX(.0)}
+.MJXp-scale1 {-webkit-transform: scaleX(.1); -moz-transform: scaleX(.1); -ms-transform: scaleX(.1); -o-transform: scaleX(.1); transform: scaleX(.1)}
+.MJXp-scale2 {-webkit-transform: scaleX(.2); -moz-transform: scaleX(.2); -ms-transform: scaleX(.2); -o-transform: scaleX(.2); transform: scaleX(.2)}
+.MJXp-scale3 {-webkit-transform: scaleX(.3); -moz-transform: scaleX(.3); -ms-transform: scaleX(.3); -o-transform: scaleX(.3); transform: scaleX(.3)}
+.MJXp-scale4 {-webkit-transform: scaleX(.4); -moz-transform: scaleX(.4); -ms-transform: scaleX(.4); -o-transform: scaleX(.4); transform: scaleX(.4)}
+.MJXp-scale5 {-webkit-transform: scaleX(.5); -moz-transform: scaleX(.5); -ms-transform: scaleX(.5); -o-transform: scaleX(.5); transform: scaleX(.5)}
+.MJXp-scale6 {-webkit-transform: scaleX(.6); -moz-transform: scaleX(.6); -ms-transform: scaleX(.6); -o-transform: scaleX(.6); transform: scaleX(.6)}
+.MJXp-scale7 {-webkit-transform: scaleX(.7); -moz-transform: scaleX(.7); -ms-transform: scaleX(.7); -o-transform: scaleX(.7); transform: scaleX(.7)}
+.MJXp-scale8 {-webkit-transform: scaleX(.8); -moz-transform: scaleX(.8); -ms-transform: scaleX(.8); -o-transform: scaleX(.8); transform: scaleX(.8)}
+.MJXp-scale9 {-webkit-transform: scaleX(.9); -moz-transform: scaleX(.9); -ms-transform: scaleX(.9); -o-transform: scaleX(.9); transform: scaleX(.9)}
+.MathJax_PHTML .noError {vertical-align: ; font-size: 90%; text-align: left; color: black; padding: 1px 3px; border: 1px solid}
+</style></head>
+
+<body><div id="MathJax_Message" style="display: none;"></div>
+
+
+<div class="container-fluid main-container">
+
+
+
+
+<div id="header">
+
+<div class="btn-group pull-right float-right">
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="file:///C:/Users/Diego%20De%20Pablo/Downloads/Github%20borrar/Apuntes_Basicos_de_R.html#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="file:///C:/Users/Diego%20De%20Pablo/Downloads/Github%20borrar/Apuntes_Basicos_de_R.html#">Hide All Code</a></li>
+</ul>
+</div>
+
+
+
+<h1 class="title toc-ignore">Apuntes_basicos</h1>
+<h3 class="subtitle">Curso de introducción a R</h3>
+<h4 class="author">Diego De Pablo (Diegodepab)</h4>
+<address class="author_afil">
+Universidade da Málaga<br><h4 class="date">2024-03-013</h4>
+
+</address></div>
+
+<div id="TOC">
+<ul>
+<li><a href="file:///C:/Users/Diego%20De%20Pablo/Downloads/Github%20borrar/Apuntes_Basicos_de_R.html#basic" id="toc-basic"><span class="toc-section-number">0.1</span> Basic</a></li>
+<li><a href="file:///C:/Users/Diego%20De%20Pablo/Downloads/Github%20borrar/Apuntes_Basicos_de_R.html#operaciones_basicas" id="toc-operaciones_basicas"><span class="toc-section-number">1</span> Operaciones_Basicas</a></li>
+<li><a href="file:///C:/Users/Diego%20De%20Pablo/Downloads/Github%20borrar/Apuntes_Basicos_de_R.html#string" id="toc-string"><span class="toc-section-number">2</span> string</a></li>
+<li><a href="file:///C:/Users/Diego%20De%20Pablo/Downloads/Github%20borrar/Apuntes_Basicos_de_R.html#logicos" id="toc-logicos"><span class="toc-section-number">3</span> Logicos</a></li>
+<li><a href="file:///C:/Users/Diego%20De%20Pablo/Downloads/Github%20borrar/Apuntes_Basicos_de_R.html#vectores" id="toc-vectores"><span class="toc-section-number">4</span> Vectores:</a>
+<ul>
+<li><a href="file:///C:/Users/Diego%20De%20Pablo/Downloads/Github%20borrar/Apuntes_Basicos_de_R.html#manejo-logico-de-vectores" id="toc-manejo-logico-de-vectores"><span class="toc-section-number">4.1</span> Manejo logico de vectores</a></li>
+<li><a href="file:///C:/Users/Diego%20De%20Pablo/Downloads/Github%20borrar/Apuntes_Basicos_de_R.html#manejo-de-subconjuntos-de-vectores" id="toc-manejo-de-subconjuntos-de-vectores"><span class="toc-section-number">4.2</span> Manejo de subconjuntos de
+vectores</a></li>
+<li><a href="file:///C:/Users/Diego%20De%20Pablo/Downloads/Github%20borrar/Apuntes_Basicos_de_R.html#vectores-como-conjuntos" id="toc-vectores-como-conjuntos"><span class="toc-section-number">4.3</span> Vectores como conjuntos</a></li>
+<li><a href="file:///C:/Users/Diego%20De%20Pablo/Downloads/Github%20borrar/Apuntes_Basicos_de_R.html#vectores-como-bucles" id="toc-vectores-como-bucles"><span class="toc-section-number">4.4</span> Vectores como bucles</a></li>
+</ul></li>
+<li><a href="file:///C:/Users/Diego%20De%20Pablo/Downloads/Github%20borrar/Apuntes_Basicos_de_R.html#convertir-valores-a-otro-tipo" id="toc-convertir-valores-a-otro-tipo"><span class="toc-section-number">5</span> Convertir valores a otro
+tipo</a></li>
+<li><a href="file:///C:/Users/Diego%20De%20Pablo/Downloads/Github%20borrar/Apuntes_Basicos_de_R.html#condicional-if" id="toc-condicional-if"><span class="toc-section-number">6</span> Condicional if</a></li>
+<li><a href="file:///C:/Users/Diego%20De%20Pablo/Downloads/Github%20borrar/Apuntes_Basicos_de_R.html#bucles" id="toc-bucles"><span class="toc-section-number">7</span> Bucles</a></li>
+<li><a href="file:///C:/Users/Diego%20De%20Pablo/Downloads/Github%20borrar/Apuntes_Basicos_de_R.html#funciones" id="toc-funciones"><span class="toc-section-number">8</span> funciones</a></li>
+<li><a href="file:///C:/Users/Diego%20De%20Pablo/Downloads/Github%20borrar/Apuntes_Basicos_de_R.html#listas" id="toc-listas"><span class="toc-section-number">9</span> Listas</a></li>
+<li><a href="file:///C:/Users/Diego%20De%20Pablo/Downloads/Github%20borrar/Apuntes_Basicos_de_R.html#dataframe" id="toc-dataframe"><span class="toc-section-number">10</span> Dataframe</a></li>
+<li><a href="file:///C:/Users/Diego%20De%20Pablo/Downloads/Github%20borrar/Apuntes_Basicos_de_R.html#graficas" id="toc-graficas"><span class="toc-section-number">11</span> Graficas</a></li>
+<li><a href="file:///C:/Users/Diego%20De%20Pablo/Downloads/Github%20borrar/Apuntes_Basicos_de_R.html#tidyverse" id="toc-tidyverse"><span class="toc-section-number">12</span> Tidyverse</a></li>
+<li><a href="file:///C:/Users/Diego%20De%20Pablo/Downloads/Github%20borrar/Apuntes_Basicos_de_R.html#valores-aleatorios" id="toc-valores-aleatorios"><span class="toc-section-number">13</span> Valores aleatorios</a></li>
+<li><a href="file:///C:/Users/Diego%20De%20Pablo/Downloads/Github%20borrar/Apuntes_Basicos_de_R.html#leer-ficheros-txt" id="toc-leer-ficheros-txt"><span class="toc-section-number">14</span> Leer ficheros txt</a></li>
+</ul>
+</div>
+
+<div id="basic" class="section level2" number="0.1">
+<h2><span class="header-section-number">0.1</span> Basic</h2>
+<p>Esto son unos apuntes que tengo para recordarme las bases de R, es
+muy informal ya que solo quería recordar todos los comandos de R además
+de empezar a practicar con R markdown</p>
+<p>asignacion usamos ejemplo=5 o ejemplo &lt;- 5 (usando el atajo de
+teclado alt + -) hipotenusa &lt;- 5 #en tools, modify, insert assigment
+operator alt x) para comprobar cualquier información de algún paquete
+podemos usar ?plot o ?(paquete)</p>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F361" data-bs-target="#rcode-643E0F361" aria-expanded="true" aria-controls="rcode-643E0F361"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F361" aria-expanded="true" style=""><pre class="r"><code class="hljs">entero &lt;- <span class="hljs-number">5</span> <span class="hljs-comment">#en tools, modify, insert assigment operator alt x) </span>
+entero</code></pre></div>
+<pre><code class="hljs">## [1] 5</code></pre>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F362" data-bs-target="#rcode-643E0F362" aria-expanded="true" aria-controls="rcode-643E0F362"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F362" aria-expanded="true" style=""><pre class="r"><code class="hljs">decimal &lt;- <span class="hljs-number">3.14159268</span>
+decimal</code></pre></div>
+<pre><code class="hljs">## [1] 3.141593</code></pre>
+</div>
+<div id="operaciones_basicas" class="section level1" number="1">
+<h1><span class="header-section-number">1</span>
+Operaciones_Basicas</h1>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F363" data-bs-target="#rcode-643E0F363" aria-expanded="true" aria-controls="rcode-643E0F363"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F363" aria-expanded="true" style=""><pre class="r"><code class="hljs">entero + <span class="hljs-number">10</span></code></pre></div>
+<pre><code class="hljs">## [1] 15</code></pre>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F364" data-bs-target="#rcode-643E0F364" aria-expanded="true" aria-controls="rcode-643E0F364"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F364" aria-expanded="true" style=""><pre class="r"><code class="hljs">entero - <span class="hljs-number">10</span></code></pre></div>
+<pre><code class="hljs">## [1] -5</code></pre>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F365" data-bs-target="#rcode-643E0F365" aria-expanded="true" aria-controls="rcode-643E0F365"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F365" aria-expanded="true" style=""><pre class="r"><code class="hljs">entero / <span class="hljs-number">10</span></code></pre></div>
+<pre><code class="hljs">## [1] 0.5</code></pre>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F366" data-bs-target="#rcode-643E0F366" aria-expanded="true" aria-controls="rcode-643E0F366"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F366" aria-expanded="true" style=""><pre class="r"><code class="hljs">entero *<span class="hljs-number">10</span></code></pre></div>
+<pre><code class="hljs">## [1] 50</code></pre>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F367" data-bs-target="#rcode-643E0F367" aria-expanded="true" aria-controls="rcode-643E0F367"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F367" aria-expanded="true" style=""><pre class="r"><code class="hljs">entero**<span class="hljs-number">2</span> <span class="hljs-comment">#potencia</span></code></pre></div>
+<pre><code class="hljs">## [1] 25</code></pre>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F368" data-bs-target="#rcode-643E0F368" aria-expanded="true" aria-controls="rcode-643E0F368"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F368" aria-expanded="true" style=""><pre class="r"><code class="hljs">entero %%<span class="hljs-number">3</span> <span class="hljs-comment">#modulo</span></code></pre></div>
+<pre><code class="hljs">## [1] 2</code></pre>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F369" data-bs-target="#rcode-643E0F369" aria-expanded="true" aria-controls="rcode-643E0F369"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F369" aria-expanded="true" style=""><pre class="r"><code class="hljs"><span class="hljs-comment">#decimales</span>
+ceiling(decimal) <span class="hljs-comment">#aproxima para arriba</span></code></pre></div>
+<pre><code class="hljs">## [1] 4</code></pre>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3610" data-bs-target="#rcode-643E0F3610" aria-expanded="true" aria-controls="rcode-643E0F3610"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3610" aria-expanded="true" style=""><pre class="r"><code class="hljs">floor(decimal) <span class="hljs-comment">#redondea para abajo</span></code></pre></div>
+<pre><code class="hljs">## [1] 3</code></pre>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3611" data-bs-target="#rcode-643E0F3611" aria-expanded="true" aria-controls="rcode-643E0F3611"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3611" aria-expanded="true" style=""><pre class="r"><code class="hljs">trunc(decimal) <span class="hljs-comment">#elimina la parte decimal </span></code></pre></div>
+<pre><code class="hljs">## [1] 3</code></pre>
+</div>
+<div id="string" class="section level1" number="2">
+<h1><span class="header-section-number">2</span> string</h1>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3612" data-bs-target="#rcode-643E0F3612" aria-expanded="true" aria-controls="rcode-643E0F3612"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3612" aria-expanded="true" style=""><pre class="r"><code class="hljs">usuario &lt;-  <span class="hljs-string">"Alvaro 123456"</span>
+usuario</code></pre></div>
+<pre><code class="hljs">## [1] "Alvaro 123456"</code></pre>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3613" data-bs-target="#rcode-643E0F3613" aria-expanded="true" aria-controls="rcode-643E0F3613"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3613" aria-expanded="true" style=""><pre class="r"><code class="hljs">nchar(usuario) <span class="hljs-comment">#nos dice la cantidad de caracteres del string</span></code></pre></div>
+<pre><code class="hljs">## [1] 13</code></pre>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3614" data-bs-target="#rcode-643E0F3614" aria-expanded="true" aria-controls="rcode-643E0F3614"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3614" aria-expanded="true" style=""><pre class="r"><code class="hljs">tolower(usuario) <span class="hljs-comment">#convierte todo en minusculas</span></code></pre></div>
+<pre><code class="hljs">## [1] "alvaro 123456"</code></pre>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3615" data-bs-target="#rcode-643E0F3615" aria-expanded="true" aria-controls="rcode-643E0F3615"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3615" aria-expanded="true" style=""><pre class="r"><code class="hljs">toupper(usuario) <span class="hljs-comment">#convierte todo en mayusculas</span></code></pre></div>
+<pre><code class="hljs">## [1] "ALVARO 123456"</code></pre>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3616" data-bs-target="#rcode-643E0F3616" aria-expanded="true" aria-controls="rcode-643E0F3616"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3616" aria-expanded="true" style=""><pre class="r"><code class="hljs">substr(usuario, <span class="hljs-number">1</span>,<span class="hljs-number">6</span>) <span class="hljs-comment">#subcadena del string original</span></code></pre></div>
+<pre><code class="hljs">## [1] "Alvaro"</code></pre>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3617" data-bs-target="#rcode-643E0F3617" aria-expanded="true" aria-controls="rcode-643E0F3617"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3617" aria-expanded="true" style=""><pre class="r"><code class="hljs">strsplit(usuario, split=<span class="hljs-string">""</span>) <span class="hljs-comment">#uso de split en R</span></code></pre></div>
+<pre><code class="hljs">## [[1]]
+##  [1] "A" "l" "v" "a" "r" "o" " " "1" "2" "3" "4" "5" "6"</code></pre>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3618" data-bs-target="#rcode-643E0F3618" aria-expanded="true" aria-controls="rcode-643E0F3618"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3618" aria-expanded="true" style=""><pre class="r"><code class="hljs">sub(<span class="hljs-string">"Alvaro"</span>,<span class="hljs-string">"Diego"</span>,usuario) <span class="hljs-comment">#sustituir la primera concurrencia</span></code></pre></div>
+<pre><code class="hljs">## [1] "Diego 123456"</code></pre>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3619" data-bs-target="#rcode-643E0F3619" aria-expanded="true" aria-controls="rcode-643E0F3619"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3619" aria-expanded="true" style=""><pre class="r"><code class="hljs">ADN &lt;- <span class="hljs-string">"AAATTTTGGGCCGCGCATTACGAGCT"</span>
+gsub(<span class="hljs-string">"T"</span>,<span class="hljs-string">"U"</span>,ADN) <span class="hljs-comment">#Cambia todas las concurrencias</span></code></pre></div>
+<pre><code class="hljs">## [1] "AAAUUUUGGGCCGCGCAUUACGAGCU"</code></pre>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3620" data-bs-target="#rcode-643E0F3620" aria-expanded="true" aria-controls="rcode-643E0F3620"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3620" aria-expanded="true" style=""><pre class="r"><code class="hljs">paste(usuario, <span class="hljs-string">"Su ADN ES:"</span>, ADN, sep = <span class="hljs-string">"_"</span>) <span class="hljs-comment">#concatenar</span></code></pre></div>
+<pre><code class="hljs">## [1] "Alvaro 123456_Su ADN ES:_AAATTTTGGGCCGCGCATTACGAGCT"</code></pre>
+</div>
+<div id="logicos" class="section level1" number="3">
+<h1><span class="header-section-number">3</span> Logicos</h1>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3621" data-bs-target="#rcode-643E0F3621" aria-expanded="true" aria-controls="rcode-643E0F3621"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3621" aria-expanded="true" style=""><pre class="r"><code class="hljs">mentira &lt;- usuario==<span class="hljs-string">"hermoso"</span>
+mentira</code></pre></div>
+<pre><code class="hljs">## [1] FALSE</code></pre>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3622" data-bs-target="#rcode-643E0F3622" aria-expanded="true" aria-controls="rcode-643E0F3622"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3622" aria-expanded="true" style=""><pre class="r"><code class="hljs">verdad &lt;-  usuario==<span class="hljs-string">"Alvaro 123456"</span> &amp; decimal&lt;=<span class="hljs-number">15</span>
+verdad</code></pre></div>
+<pre><code class="hljs">## [1] TRUE</code></pre>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3623" data-bs-target="#rcode-643E0F3623" aria-expanded="true" aria-controls="rcode-643E0F3623"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3623" aria-expanded="true" style=""><pre class="r"><code class="hljs">booleano &lt;-  usuario!=<span class="hljs-string">"hermoso"</span> | decimal!=<span class="hljs-number">3</span>
+booleano</code></pre></div>
+<pre><code class="hljs">## [1] TRUE</code></pre>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3624" data-bs-target="#rcode-643E0F3624" aria-expanded="true" aria-controls="rcode-643E0F3624"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3624" aria-expanded="true" style=""><pre class="r"><code class="hljs">!grepl(<span class="hljs-string">"Alvaro"</span>,usuario) <span class="hljs-comment">#pregunta si contiene este substring devuelve true</span></code></pre></div>
+<pre><code class="hljs">## [1] FALSE</code></pre>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3625" data-bs-target="#rcode-643E0F3625" aria-expanded="true" aria-controls="rcode-643E0F3625"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3625" aria-expanded="true" style=""><pre class="r"><code class="hljs">any(strsplit(usuario, split=<span class="hljs-string">""</span>)[[<span class="hljs-number">1</span>]] %<span class="hljs-keyword">in</span>% <span class="hljs-number">0</span>:<span class="hljs-number">9</span>) <span class="hljs-comment">#pregunta si hay algún digito en el string</span></code></pre></div>
+<pre><code class="hljs">## [1] TRUE</code></pre>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3626" data-bs-target="#rcode-643E0F3626" aria-expanded="true" aria-controls="rcode-643E0F3626"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3626" aria-expanded="true" style=""><pre class="r"><code class="hljs">!grepl(<span class="hljs-string">"[^ATGC]"</span>, ADN) <span class="hljs-comment">#Devuelve TRUE si la cadena de texto solo tiene los valores dichos</span></code></pre></div>
+<pre><code class="hljs">## [1] TRUE</code></pre>
+</div>
+<div id="vectores" class="section level1" number="4">
+<h1><span class="header-section-number">4</span> Vectores:</h1>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3627" data-bs-target="#rcode-643E0F3627" aria-expanded="true" aria-controls="rcode-643E0F3627"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3627" aria-expanded="true" style=""><pre class="r"><code class="hljs"><span class="hljs-comment">#creacion</span>
+vector_vacio &lt;- vector() <span class="hljs-comment">#crea el vector vacio</span>
+vector_lleno &lt;- c(<span class="hljs-number">5</span>,<span class="hljs-number">3</span>,<span class="hljs-number">4</span>,<span class="hljs-number">2</span>,<span class="hljs-number">1</span>,<span class="hljs-number">0</span>)
+vector_str &lt;- c(<span class="hljs-string">"Mario"</span>, <span class="hljs-string">"Diego"</span>, <span class="hljs-string">"Alvaro"</span>,<span class="hljs-string">"Zoe"</span>,<span class="hljs-string">"Zo3"</span>) 
+vector_logico &lt;- c(<span class="hljs-literal">TRUE</span>,<span class="hljs-literal">F</span>,<span class="hljs-literal">FALSE</span>,<span class="hljs-literal">TRUE</span>)
+<span class="hljs-comment">#manipulacion</span>
+length(vector_lleno) <span class="hljs-comment">#Cuenta desde el 1 hasta el N elemento del vector</span></code></pre></div>
+<pre><code class="hljs">## [1] 6</code></pre>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3628" data-bs-target="#rcode-643E0F3628" aria-expanded="true" aria-controls="rcode-643E0F3628"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3628" aria-expanded="true" style=""><pre class="r"><code class="hljs">max(vector_lleno) <span class="hljs-comment">#dara el mayor elemento del vector</span></code></pre></div>
+<pre><code class="hljs">## [1] 5</code></pre>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3629" data-bs-target="#rcode-643E0F3629" aria-expanded="true" aria-controls="rcode-643E0F3629"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3629" aria-expanded="true" style=""><pre class="r"><code class="hljs">max(vector_str) <span class="hljs-comment">#dara el nombre cuya letras iniciales sean ultimas en el alfabeto, tambien existe la funcion min()</span></code></pre></div>
+<pre><code class="hljs">## [1] "Zoe"</code></pre>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3630" data-bs-target="#rcode-643E0F3630" aria-expanded="true" aria-controls="rcode-643E0F3630"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3630" aria-expanded="true" style=""><pre class="r"><code class="hljs">mean(vector_lleno) <span class="hljs-comment">#Promedio de los elementos del vector</span></code></pre></div>
+<pre><code class="hljs">## [1] 2.5</code></pre>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3631" data-bs-target="#rcode-643E0F3631" aria-expanded="true" aria-controls="rcode-643E0F3631"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3631" aria-expanded="true" style=""><pre class="r"><code class="hljs">mean(vector_logico) <span class="hljs-comment">#Promedio de elementos verdaderos en el vectores (verdaderos/total)</span></code></pre></div>
+<pre><code class="hljs">## [1] 0.5</code></pre>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3632" data-bs-target="#rcode-643E0F3632" aria-expanded="true" aria-controls="rcode-643E0F3632"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3632" aria-expanded="true" style=""><pre class="r"><code class="hljs">sum(vector_lleno) <span class="hljs-comment">#suma todos los elementos del vector</span></code></pre></div>
+<pre><code class="hljs">## [1] 15</code></pre>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3633" data-bs-target="#rcode-643E0F3633" aria-expanded="true" aria-controls="rcode-643E0F3633"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3633" aria-expanded="true" style=""><pre class="r"><code class="hljs">vector_lleno+<span class="hljs-number">10</span> <span class="hljs-comment">#suma 10 a cada elemento del vector</span></code></pre></div>
+<pre><code class="hljs">## [1] 15 13 14 12 11 10</code></pre>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3634" data-bs-target="#rcode-643E0F3634" aria-expanded="true" aria-controls="rcode-643E0F3634"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3634" aria-expanded="true" style=""><pre class="r"><code class="hljs">vector_lleno <span class="hljs-comment">#comparar salida</span></code></pre></div>
+<pre><code class="hljs">## [1] 5 3 4 2 1 0</code></pre>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3635" data-bs-target="#rcode-643E0F3635" aria-expanded="true" aria-controls="rcode-643E0F3635"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3635" aria-expanded="true" style=""><pre class="r"><code class="hljs">vector_str &lt;- c(vector_str,<span class="hljs-string">"Marina"</span>) <span class="hljs-comment">#agrega a Marina en el vector</span>
+names(vector_lleno) &lt;- vector_str <span class="hljs-comment">#etiqueta un vector con cada elemento del segundo, el segundo debe ser menor o igual al primer vector</span>
+vector_lleno</code></pre></div>
+<pre><code class="hljs">##  Mario  Diego Alvaro    Zoe    Zo3 Marina 
+##      5      3      4      2      1      0</code></pre>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3636" data-bs-target="#rcode-643E0F3636" aria-expanded="true" aria-controls="rcode-643E0F3636"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3636" aria-expanded="true" style=""><pre class="r"><code class="hljs">sort(vector_str) <span class="hljs-comment">#ordena de menor a mayor o de a-z</span></code></pre></div>
+<pre><code class="hljs">## [1] "Alvaro" "Diego"  "Marina" "Mario"  "Zo3"    "Zoe"</code></pre>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3637" data-bs-target="#rcode-643E0F3637" aria-expanded="true" aria-controls="rcode-643E0F3637"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3637" aria-expanded="true" style=""><pre class="r"><code class="hljs">sort(vector_str, decreasing = <span class="hljs-literal">T</span>) <span class="hljs-comment">#decrescientemente </span></code></pre></div>
+<pre><code class="hljs">## [1] "Zoe"    "Zo3"    "Mario"  "Marina" "Diego"  "Alvaro"</code></pre>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3638" data-bs-target="#rcode-643E0F3638" aria-expanded="true" aria-controls="rcode-643E0F3638"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3638" aria-expanded="true" style=""><pre class="r"><code class="hljs">vector_lleno[vector_lleno&gt;<span class="hljs-number">4</span>] &lt;- <span class="hljs-number">5</span> <span class="hljs-comment">#cambiamos los valores que cumplan la condicion</span></code></pre></div>
+<div id="manejo-logico-de-vectores" class="section level2" number="4.1">
+<h2><span class="header-section-number">4.1</span> Manejo logico de
+vectores</h2>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3639" data-bs-target="#rcode-643E0F3639" aria-expanded="true" aria-controls="rcode-643E0F3639"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3639" aria-expanded="true" style=""><pre class="r"><code class="hljs">vector_lleno &gt;<span class="hljs-number">3</span> <span class="hljs-comment">#nos devuelve un vector con los valores booleanos segun la condicion</span></code></pre></div>
+<pre><code class="hljs">##  Mario  Diego Alvaro    Zoe    Zo3 Marina 
+##   TRUE  FALSE   TRUE  FALSE  FALSE  FALSE</code></pre>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3640" data-bs-target="#rcode-643E0F3640" aria-expanded="true" aria-controls="rcode-643E0F3640"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3640" aria-expanded="true" style=""><pre class="r"><code class="hljs">which(vector_lleno&gt;<span class="hljs-number">3</span>) <span class="hljs-comment">#devuelve los elementos del vector que satisfagan la condicion</span></code></pre></div>
+<pre><code class="hljs">##  Mario Alvaro 
+##      1      3</code></pre>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3641" data-bs-target="#rcode-643E0F3641" aria-expanded="true" aria-controls="rcode-643E0F3641"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3641" aria-expanded="true" style=""><pre class="r"><code class="hljs">any(vector_lleno&lt;<span class="hljs-number">0</span>) <span class="hljs-comment">#devuelve true si algun elemento del vector cumple la condicion</span></code></pre></div>
+<pre><code class="hljs">## [1] FALSE</code></pre>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3642" data-bs-target="#rcode-643E0F3642" aria-expanded="true" aria-controls="rcode-643E0F3642"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3642" aria-expanded="true" style=""><pre class="r"><code class="hljs">all(vector_lleno&lt;<span class="hljs-number">100</span>) <span class="hljs-comment">#devuelve true si todos los elementos cumplen la condicion </span></code></pre></div>
+<pre><code class="hljs">## [1] TRUE</code></pre>
+</div>
+<div id="manejo-de-subconjuntos-de-vectores" class="section level2" number="4.2">
+<h2><span class="header-section-number">4.2</span> Manejo de
+subconjuntos de vectores</h2>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3643" data-bs-target="#rcode-643E0F3643" aria-expanded="true" aria-controls="rcode-643E0F3643"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3643" aria-expanded="true" style=""><pre class="r"><code class="hljs">vector_lleno[c(<span class="hljs-number">1</span>,length(vector_lleno))] <span class="hljs-comment">#indicamos las posiciones que queremos obtener</span></code></pre></div>
+<pre><code class="hljs">##  Mario Marina 
+##      5      0</code></pre>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3644" data-bs-target="#rcode-643E0F3644" aria-expanded="true" aria-controls="rcode-643E0F3644"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3644" aria-expanded="true" style=""><pre class="r"><code class="hljs">vector_lleno[-<span class="hljs-number">1</span>] <span class="hljs-comment">#podemos omitir un elemento</span></code></pre></div>
+<pre><code class="hljs">##  Diego Alvaro    Zoe    Zo3 Marina 
+##      3      4      2      1      0</code></pre>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3645" data-bs-target="#rcode-643E0F3645" aria-expanded="true" aria-controls="rcode-643E0F3645"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3645" aria-expanded="true" style=""><pre class="r"><code class="hljs">vector_lleno[vector_lleno&gt;<span class="hljs-number">3</span>] <span class="hljs-comment">#devuelve el subconjunto que satisfaga</span></code></pre></div>
+<pre><code class="hljs">##  Mario Alvaro 
+##      5      4</code></pre>
+</div>
+<div id="vectores-como-conjuntos" class="section level2" number="4.3">
+<h2><span class="header-section-number">4.3</span> Vectores como
+conjuntos</h2>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3646" data-bs-target="#rcode-643E0F3646" aria-expanded="true" aria-controls="rcode-643E0F3646"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3646" aria-expanded="true" style=""><pre class="r"><code class="hljs">pacientes_cancer &lt;- c(<span class="hljs-string">"Juan"</span>, <span class="hljs-string">"Gonzalo"</span>, <span class="hljs-string">"Diego"</span>, <span class="hljs-string">"Pepe"</span>)
+pacientes_sida &lt;- c(<span class="hljs-string">"Diego"</span>, <span class="hljs-string">"Mario"</span>, <span class="hljs-string">"Alvaro"</span>)
+c(pacientes_cancer,pacientes_sida) <span class="hljs-comment">#union + interseccion </span></code></pre></div>
+<pre><code class="hljs">## [1] "Juan"    "Gonzalo" "Diego"   "Pepe"    "Diego"   "Mario"   "Alvaro"</code></pre>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3647" data-bs-target="#rcode-643E0F3647" aria-expanded="true" aria-controls="rcode-643E0F3647"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3647" aria-expanded="true" style=""><pre class="r"><code class="hljs">union(pacientes_cancer,pacientes_sida) <span class="hljs-comment">#union</span></code></pre></div>
+<pre><code class="hljs">## [1] "Juan"    "Gonzalo" "Diego"   "Pepe"    "Mario"   "Alvaro"</code></pre>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3648" data-bs-target="#rcode-643E0F3648" aria-expanded="true" aria-controls="rcode-643E0F3648"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3648" aria-expanded="true" style=""><pre class="r"><code class="hljs">intersect(pacientes_cancer,pacientes_sida) <span class="hljs-comment">#interseccion</span></code></pre></div>
+<pre><code class="hljs">## [1] "Diego"</code></pre>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3649" data-bs-target="#rcode-643E0F3649" aria-expanded="true" aria-controls="rcode-643E0F3649"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3649" aria-expanded="true" style=""><pre class="r"><code class="hljs">setdiff(pacientes_cancer,pacientes_sida) <span class="hljs-comment">#union - interseccion </span></code></pre></div>
+<pre><code class="hljs">## [1] "Juan"    "Gonzalo" "Pepe"</code></pre>
+</div>
+<div id="vectores-como-bucles" class="section level2" number="4.4">
+<h2><span class="header-section-number">4.4</span> Vectores como
+bucles</h2>
+<p>En este apartado me quise dar la tarea de buscar cuantos números son
+divisibles entre 6 y 8 entre los números 1 al 1000000</p>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3650" data-bs-target="#rcode-643E0F3650" aria-expanded="true" aria-controls="rcode-643E0F3650"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3650" aria-expanded="true" style=""><pre class="r"><code class="hljs">millon &lt;-  <span class="hljs-number">1</span>:<span class="hljs-number">1000000</span>
+sum(millon %% <span class="hljs-number">6</span> == <span class="hljs-number">0</span> &amp; millon %% <span class="hljs-number">8</span>==<span class="hljs-number">0</span>)</code></pre></div>
+<pre><code class="hljs">## [1] 41666</code></pre>
+</div>
+</div>
+<div id="convertir-valores-a-otro-tipo" class="section level1" number="5">
+<h1><span class="header-section-number">5</span> Convertir valores a
+otro tipo</h1>
+<p>Si queremos pasar a un número usamos as.numeric, si queremos string
+as.character y si queremos logical usamos as.logical Todo esto es
+aplicable en vectores y todo lo anteriormente visto</p>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3651" data-bs-target="#rcode-643E0F3651" aria-expanded="true" aria-controls="rcode-643E0F3651"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3651" aria-expanded="true" style=""><pre class="r"><code class="hljs"><span class="hljs-comment">#de numerico a caracter</span>
+as.character(<span class="hljs-number">100</span>)</code></pre></div>
+<pre><code class="hljs">## [1] "100"</code></pre>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3652" data-bs-target="#rcode-643E0F3652" aria-expanded="true" aria-controls="rcode-643E0F3652"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3652" aria-expanded="true" style=""><pre class="r"><code class="hljs"><span class="hljs-comment">#num a logico</span>
+as.logical(<span class="hljs-number">0</span>) <span class="hljs-comment">#false</span></code></pre></div>
+<pre><code class="hljs">## [1] FALSE</code></pre>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3653" data-bs-target="#rcode-643E0F3653" aria-expanded="true" aria-controls="rcode-643E0F3653"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3653" aria-expanded="true" style=""><pre class="r"><code class="hljs">as.logical(<span class="hljs-number">2</span>) <span class="hljs-comment">#cualquier numero exceptuando el 0 será TRUE</span></code></pre></div>
+<pre><code class="hljs">## [1] TRUE</code></pre>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3654" data-bs-target="#rcode-643E0F3654" aria-expanded="true" aria-controls="rcode-643E0F3654"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3654" aria-expanded="true" style=""><pre class="r"><code class="hljs"><span class="hljs-comment">#de logico a caracter</span>
+as.character(<span class="hljs-literal">TRUE</span>)</code></pre></div>
+<pre><code class="hljs">## [1] "TRUE"</code></pre>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3655" data-bs-target="#rcode-643E0F3655" aria-expanded="true" aria-controls="rcode-643E0F3655"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3655" aria-expanded="true" style=""><pre class="r"><code class="hljs"><span class="hljs-comment">#de logico a numerico</span>
+as.numeric(<span class="hljs-literal">TRUE</span>) <span class="hljs-comment">#TRUE ES 1 Y FALSE ES 0</span></code></pre></div>
+<pre><code class="hljs">## [1] 1</code></pre>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3656" data-bs-target="#rcode-643E0F3656" aria-expanded="true" aria-controls="rcode-643E0F3656"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3656" aria-expanded="true" style=""><pre class="r"><code class="hljs"><span class="hljs-comment">#de caracter a numerico</span>
+as.numeric(<span class="hljs-string">"122"</span>) <span class="hljs-comment">#si ponemos un str nos dara NA</span></code></pre></div>
+<pre><code class="hljs">## [1] 122</code></pre>
+</div>
+<div id="condicional-if" class="section level1" number="6">
+<h1><span class="header-section-number">6</span> Condicional if</h1>
+<p>la sintaxis es parecida a python o java</p>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3657" data-bs-target="#rcode-643E0F3657" aria-expanded="true" aria-controls="rcode-643E0F3657"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3657" aria-expanded="true" style=""><pre class="r"><code class="hljs">edad=<span class="hljs-number">17.5</span>
+<span class="hljs-keyword">if</span>(edad&gt;<span class="hljs-number">18</span>){
+  print(<span class="hljs-string">"Buena suerte"</span>)
+} <span class="hljs-keyword">else</span>{
+  print(<span class="hljs-string">"Mala suerte"</span>)
+}</code></pre></div>
+<pre><code class="hljs">## [1] "Mala suerte"</code></pre>
+</div>
+<div id="bucles" class="section level1" number="7">
+<h1><span class="header-section-number">7</span> Bucles</h1>
+<p>Muy parecido a otros lenguajes también Sin embargo R es un lenguaje
+orientado a vectores es mejor usar apply que bucles for o while.</p>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3658" data-bs-target="#rcode-643E0F3658" aria-expanded="true" aria-controls="rcode-643E0F3658"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3658" aria-expanded="true" style=""><pre class="r"><code class="hljs"><span class="hljs-comment">#bucle for</span>
+<span class="hljs-keyword">for</span>(i <span class="hljs-keyword">in</span> <span class="hljs-number">1</span>:<span class="hljs-number">5</span>){
+  cat(<span class="hljs-string">" Bucle for:"</span>, i)
+}</code></pre></div>
+<pre><code class="hljs">##  Bucle for: 1 Bucle for: 2 Bucle for: 3 Bucle for: 4 Bucle for: 5</code></pre>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3659" data-bs-target="#rcode-643E0F3659" aria-expanded="true" aria-controls="rcode-643E0F3659"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3659" aria-expanded="true" style=""><pre class="r"><code class="hljs"><span class="hljs-comment">#bucle while</span>
+<span class="hljs-keyword">while</span>(edad&lt;<span class="hljs-number">18</span>){
+  edad &lt;- edad+<span class="hljs-number">0.1</span>
+}
+cat(<span class="hljs-string">"    Salio del bucle:"</span>, edad)</code></pre></div>
+<pre><code class="hljs">##     Salio del bucle: 18</code></pre>
+</div>
+<div id="funciones" class="section level1" number="8">
+<h1><span class="header-section-number">8</span> funciones</h1>
+<p>La sintaxis es muy sencilla, “nombre_funcion” =
+function(parametros)</p>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3660" data-bs-target="#rcode-643E0F3660" aria-expanded="true" aria-controls="rcode-643E0F3660"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3660" aria-expanded="true" style=""><pre class="r"><code class="hljs">exponente &lt;- <span class="hljs-keyword">function</span>(num,exp=<span class="hljs-number">2</span>){
+  <span class="hljs-keyword">return</span>(num**exp)
+}
+exponente(<span class="hljs-number">5</span>,<span class="hljs-number">2</span>)</code></pre></div>
+<pre><code class="hljs">## [1] 25</code></pre>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3661" data-bs-target="#rcode-643E0F3661" aria-expanded="true" aria-controls="rcode-643E0F3661"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3661" aria-expanded="true" style=""><pre class="r"><code class="hljs">cuenta_vocales &lt;- <span class="hljs-keyword">function</span>(string){
+  <span class="hljs-keyword">return</span>(length(gregexpr(<span class="hljs-string">"[AEIOUaeiou]"</span>, string)[[<span class="hljs-number">1</span>]]))
+}
+cuenta_vocales(<span class="hljs-string">"Diegodepab"</span>)</code></pre></div>
+<pre><code class="hljs">## [1] 5</code></pre>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3662" data-bs-target="#rcode-643E0F3662" aria-expanded="true" aria-controls="rcode-643E0F3662"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3662" aria-expanded="true" style=""><pre class="r"><code class="hljs">cuenta_vocales_v2 &lt;- <span class="hljs-keyword">function</span>(string){
+  letras &lt;- strsplit(toupper(string), split=<span class="hljs-string">""</span>)[[<span class="hljs-number">1</span>]]
+  letras &lt;- tolower(letras)
+  
+  vocales &lt;- c(<span class="hljs-string">"a"</span>,<span class="hljs-string">"e"</span>,<span class="hljs-string">"i"</span>,<span class="hljs-string">"o"</span>,<span class="hljs-string">"u"</span>)
+  <span class="hljs-keyword">return</span> (sum(letras %<span class="hljs-keyword">in</span>% vocales))
+}
+cuenta_vocales_v2(<span class="hljs-string">"Diegodepab"</span>)</code></pre></div>
+<pre><code class="hljs">## [1] 5</code></pre>
+</div>
+<div id="listas" class="section level1" number="9">
+<h1><span class="header-section-number">9</span> Listas</h1>
+<p>Muy parecido a los vectores pero mientras que un vector es una
+colección unidimensional de elementos del mismo tipo los elementos de
+una lista pueden ser de diferentes tipos o estructuras.</p>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3663" data-bs-target="#rcode-643E0F3663" aria-expanded="true" aria-controls="rcode-643E0F3663"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3663" aria-expanded="true" style=""><pre class="r"><code class="hljs">print(<span class="hljs-string">"Al usar c, todo se guarda como un str"</span>)</code></pre></div>
+<pre><code class="hljs">## [1] "Al usar c, todo se guarda como un str"</code></pre>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3664" data-bs-target="#rcode-643E0F3664" aria-expanded="true" aria-controls="rcode-643E0F3664"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3664" aria-expanded="true" style=""><pre class="r"><code class="hljs">c(<span class="hljs-number">3.14615</span>,<span class="hljs-literal">TRUE</span>,<span class="hljs-string">"Hola Mundo!"</span>)</code></pre></div>
+<pre><code class="hljs">## [1] "3.14615"     "TRUE"        "Hola Mundo!"</code></pre>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3665" data-bs-target="#rcode-643E0F3665" aria-expanded="true" aria-controls="rcode-643E0F3665"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3665" aria-expanded="true" style=""><pre class="r"><code class="hljs">print(<span class="hljs-string">"Guarda en diferentes tipos y estructuras"</span>)</code></pre></div>
+<pre><code class="hljs">## [1] "Guarda en diferentes tipos y estructuras"</code></pre>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3666" data-bs-target="#rcode-643E0F3666" aria-expanded="true" aria-controls="rcode-643E0F3666"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3666" aria-expanded="true" style=""><pre class="r"><code class="hljs">lista &lt;- list(<span class="hljs-number">3.14615</span>,<span class="hljs-literal">TRUE</span>,<span class="hljs-string">"Hola Mundo!"</span>)
+lista_nombrada &lt;- list(numero = <span class="hljs-number">8</span>, logico=<span class="hljs-literal">TRUE</span>, str=<span class="hljs-string">"Hola perdedor"</span>)
+lista_nombrada</code></pre></div>
+<pre><code class="hljs">## $numero
+## [1] 8
+## 
+## $logico
+## [1] TRUE
+## 
+## $str
+## [1] "Hola perdedor"</code></pre>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3667" data-bs-target="#rcode-643E0F3667" aria-expanded="true" aria-controls="rcode-643E0F3667"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3667" aria-expanded="true" style=""><pre class="r"><code class="hljs">print(<span class="hljs-string">"obteniendo entradas de una lista"</span>)</code></pre></div>
+<pre><code class="hljs">## [1] "obteniendo entradas de una lista"</code></pre>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3668" data-bs-target="#rcode-643E0F3668" aria-expanded="true" aria-controls="rcode-643E0F3668"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3668" aria-expanded="true" style=""><pre class="r"><code class="hljs">lista_nombrada[<span class="hljs-number">3</span>]</code></pre></div>
+<pre><code class="hljs">## $str
+## [1] "Hola perdedor"</code></pre>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3669" data-bs-target="#rcode-643E0F3669" aria-expanded="true" aria-controls="rcode-643E0F3669"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3669" aria-expanded="true" style=""><pre class="r"><code class="hljs">lista_nombrada[c(<span class="hljs-number">1</span>,<span class="hljs-number">2</span>)]</code></pre></div>
+<pre><code class="hljs">## $numero
+## [1] 8
+## 
+## $logico
+## [1] TRUE</code></pre>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3670" data-bs-target="#rcode-643E0F3670" aria-expanded="true" aria-controls="rcode-643E0F3670"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3670" aria-expanded="true" style=""><pre class="r"><code class="hljs">print(<span class="hljs-string">"Se puede modificar valores pero es necesario usar doble corchetes"</span>)</code></pre></div>
+<pre><code class="hljs">## [1] "Se puede modificar valores pero es necesario usar doble corchetes"</code></pre>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3671" data-bs-target="#rcode-643E0F3671" aria-expanded="true" aria-controls="rcode-643E0F3671"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3671" aria-expanded="true" style=""><pre class="r"><code class="hljs">lista_nombrada[[<span class="hljs-number">1</span>]]*<span class="hljs-number">10</span></code></pre></div>
+<pre><code class="hljs">## [1] 80</code></pre>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3672" data-bs-target="#rcode-643E0F3672" aria-expanded="true" aria-controls="rcode-643E0F3672"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3672" aria-expanded="true" style=""><pre class="r"><code class="hljs">lista_nombrada$numero*<span class="hljs-number">10</span></code></pre></div>
+<pre><code class="hljs">## [1] 80</code></pre>
+</div>
+<div id="dataframe" class="section level1" number="10">
+<h1><span class="header-section-number">10</span> Dataframe</h1>
+<p>Aqui avanzaré más adelante</p>
+</div>
+<div id="graficas" class="section level1" number="11">
+<h1><span class="header-section-number">11</span> Graficas</h1>
+<p>Aqui avanzaré más adelante</p>
+</div>
+<div id="tidyverse" class="section level1" number="12">
+<h1><span class="header-section-number">12</span> Tidyverse</h1>
+<p>Aqui avanzaré más adelante</p>
+</div>
+<div id="valores-aleatorios" class="section level1" number="13">
+<h1><span class="header-section-number">13</span> Valores
+aleatorios</h1>
+<p>A la hora de practicar nos servira bastante poder generar numeros
+aleatorios. donde n es la cantidad, mean es la media que tendrá la
+distribución normal de donde se tomaran valores y sd es la desviación
+estandar</p>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3673" data-bs-target="#rcode-643E0F3673" aria-expanded="true" aria-controls="rcode-643E0F3673"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3673" aria-expanded="true" style=""><pre class="r"><code class="hljs">set.seed(<span class="hljs-number">123</span>) <span class="hljs-comment">#Answer to the Ultimate Question of Life, The Universe, and Everything</span>
+aleatorios &lt;- rnorm(n=<span class="hljs-number">100</span>, mean =<span class="hljs-number">50</span>, sd=<span class="hljs-number">10</span>) </code></pre></div>
+</div>
+<div id="leer-ficheros-txt" class="section level1" number="14">
+<h1><span class="header-section-number">14</span> Leer ficheros txt</h1>
+<p>En minería de datos, se me recomiendo trabajar con ficheros txt más
+que con otos formatos, ya que a pesar de existir bibliotecas capaces de
+pasar archivos de todo tipo, muchas de estas nos pueden dar errores que
+no podamos vigilar, al ser nosotros los que pasemos a un txt y limpiemos
+los datos podemos contar con una mayor seguridad de lo que estamos
+haciendo</p>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3674" data-bs-target="#rcode-643E0F3674" aria-expanded="true" aria-controls="rcode-643E0F3674"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3674" aria-expanded="true" style=""><pre class="r"><code class="hljs">datos_cancer &lt;- read.table(file=<span class="hljs-string">"datosm_icb.txt"</span>,sep=<span class="hljs-string">" "</span>, dec=<span class="hljs-string">"."</span>, header=<span class="hljs-literal">T</span>)
+<span class="hljs-comment">#En file hay que escribir el path del archivo : getwd() -&gt; obtener camino ; setwd("path") -&gt; marcar camino</span>
+str(datos_cancer)</code></pre></div>
+<pre><code class="hljs">## 'data.frame':    500 obs. of  8 variables:
+##  $ edad : int  51 46 49 31 36 59 55 36 63 NA ...
+##  $ tam  : num  2.3 3.4 2.1 1.7 1.5 3.8 1.5 4 1.8 1.8 ...
+##  $ grado: chr  "G1" "G3" "G2" "G2" ...
+##  $ gang : int  0 4 1 1 0 2 0 2 10 0 ...
+##  $ feno : chr  "Luminal A" "Basal like" "HER2 enriched" "Basal like" ...
+##  $ quim : chr  "No" "Yes" "Yes" "Yes" ...
+##  $ horm : chr  "Yes" "No" "Yes" "No" ...
+##  $ recid: chr  "NO" "SI" "NO" "NO" ...</code></pre>
+<div class="row"><div class="col-md-12"><button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right" data-toggle="collapse" data-bs-toggle="collapse" data-target="#rcode-643E0F3675" data-bs-target="#rcode-643E0F3675" aria-expanded="true" aria-controls="rcode-643E0F3675"><span>Hide</span></button></div></div><div class="r-code-collapse collapse in" id="rcode-643E0F3675" aria-expanded="true" style=""><pre class="r"><code class="hljs">View(datos_cancer)</code></pre></div>
+</div>
+
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("show" === "show");
+});
+</script>
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "libs/mathjax-local/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+
+
+</body></html>

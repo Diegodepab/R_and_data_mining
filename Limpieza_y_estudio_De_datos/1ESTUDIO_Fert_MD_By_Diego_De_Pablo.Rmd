@@ -1,0 +1,1017 @@
+---
+title: "1ESTUDIO_Fert_MD_By_Diego_De_Pablo"
+subtitle: "Actividad #1 estimulación ovárica"
+author:
+- name: "Diego De Pablo (depablodiego@uma.es)"
+  affiliation: "Universidade da Málaga"
+date: "2024-03-17"
+logo: rmarkdown.png
+output:
+  html_document:
+    toc: yes                  # incluir tabla de contenido
+    toc_float: no            # toc flotante a la izquierda
+    number_sections: yes      # numerar secciones y subsecciones
+    code_folding: show        # por defecto el código aparecerá mostrada
+    #mathjax: local            # emplea una copia local de MathJax, hay que establecer:
+    #self_contained: false     # las dependencias se guardan en ficheros externos
+    #lib_dir: libs             # directorio para librerías (Bootstrap, MathJax, ...)
+    fontsize: 12pt
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# **Introducción**
+
+[La estimulación
+ovárica](https://www.reproduccionasistida.org/estimulacion-de-la-ovulacion-en-fiv/)
+es un proceso crucial en tratamientos de fertilidad, y la minería de
+datos puede desempeñar un papel fundamental en su optimización. En este
+contexto, exploraremos cómo los patrones ocultos en grandes conjuntos de
+datos pueden proporcionarnos información valiosa sobre incrementar las
+tasas de éxito, las metodologías más efectivas y otras características
+relevantes.
+
+## **Caso de estudio**
+
+Pacientes que realizan un protocolo de doble estimulación ovárica con el
+objetivo de incrementar el número de óvulos, 60 pacientes siguen la
+metodología tradicional mediante el uso de [antagonistas de
+GnRH](https://www.reproduccionasistida.org/antagonistas-de-gnrh/) que
+inhiben la descarga de LH, a su vez 19 pacientes hacen uso de
+[gestágenos](https://www.institutobernabeu.com/es/foro/gestagenos-progesterona-y-derivados/)
+más económica y no hace falta inyección. La intención es ver si con uso
+de gestágenos los resultados son equiparables al protocolo habitual con
+antagonistas.
+
+## **Variables del conjunto de datos:**
+
+Si quieres más información puedes acceder a los links, estos llevarán a
+más información: \> Comunes:
+
+-   **EDAD:** [Edad de la
+    paciente.](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7721003/#:~:text=When%20a%20woman%20is%20younger,on%20the%20ovary%20and%20eggs.)
+-   **AFC:** [Recuento de folículos
+    antrales](https://www.elsevier.es/es-revista-revista-argentina-radiologia-383-articulo-recuento-foliculos-antrales-como-predictor-S0048761916301764)
+-   **AMH:** [La Hormona
+    Antimülleriana](https://www.reproduccionasistida.org/la-hormona-antimulleriana-amh/)
+-   **FACTOR MAS:** [Presencia/ausencia factor
+    masculino](https://www.elsevier.es/es-revista-medicina-familia-semergen-40-articulo-infertilidad-masculina-13089381)
+-   **FACTOR FEM:** [Causa esterilidad
+    femenina](https://www.mayoclinic.org/es/diseases-conditions/female-infertility/symptoms-causes/syc-20354308)
+-   **BMI:** [Índice de masa
+    corporal](https://www.reproduccionasistida.org/imc-embarazo/)
+
+> Las variables usadas tanto en la primera como en la segunda
+> estimulación:
+
+-   **DIAS:** [Días de
+    estimulación](https://www.reproduccionasistida.org/estimulacion-de-la-ovulacion-en-fiv/)
+-   **DOSIS:** [Dosis
+    suministradas](s://www.sefh.es/bibliotecavirtual/Emba/GuiaGTEIISEFHEmbarazoFebrero2022.pdf)
+-   **HMG:** [Hormona folículo estimulante y hormona
+    luteinizante](https://www.tuasaude.com/es/hormona-luteinizante/)
+-   **N_OVO:** [Número de
+    ovocitos](https://www.topdoctors.es/articulos-medicos/cuantos-ovulos-y-embriones-se-necesitan-para-conseguir-embarazo-en-ovodonacion#:~:text=Se%20necesita%20un%20n%C3%BAmero%20elevado%20de%20%C3%B3vulos%20para,se%20necesitan%2023%20%C3%B3vulos%20para%20conseguir%20un%20embarazo.)
+-   **MII:** [Número de ovocitos
+    maduros](https://www.reproduccionasistida.org/numero-de-ovulos-obtenido/)
+-   **FERTILIZ:**
+    [Fertilización](https://espanol.libretexts.org/Salud/Anatom%C3%ADa_y_Fisiolog%C3%ADa/Libro%3A_Anatom%C3%ADa_y_Fisiolog%C3%ADa_1e_(OpenStax)/Unit_6%3A_Desarrollo_Humano_y_Continuidad_de_la_Vida/28%3A_Desarrollo_y_Herencia/28.01%3A_Fertilizaci%C3%B3n)
+-   **BT AA BB:** [Número de blastos de buena
+    calidad](https://www.urh.es/calidad-embrionaria-que-es-un-blasto-o-blastocisto/)
+-   **CONG:** [Congelación de óvulos
+    (?)](https://www.nationalgeographic.es/ciencia/congelacion-ovulos-lo-que-necesitas-saber)
+-   **FET:** [Procedimiento de transferencia de embriones
+    congelados](https://medicinabasica.com/procedimiento-de-transferencia-de-embriones-congelados-fet)
+-   **BLASTUL:** [Blastulación -llegada a blasto-
+    *(evento)*](https://study.com/academy/lesson/blastulation-definition-process.html)
+
+## **Objetivos:**
+
+-   Identificar y discutir cualquier patrón o tendencia que sugiera una
+    relación entre las características de los pacientes/tratamientos y
+    los resultados de la blastulación.
+-   Analizar si la respuesta en blastulación es idéntica para ambos
+    grupos de tratamiento en primera y segunda estimulación.
+    -   Comparar la efectividad de ambos grupos de tratamientos.
+-   Comprobar si las distribuciones de las variables comunes a los
+    pacientes son idénticas para los dos grupos de tratamientos
+    (antagonistas y gestágenos).
+
+# **Preprocesamiento:**
+
+El dataset fue trabajado en primera instancia según los consejos dados
+en clase, es decir se unificaron ambas hojas de excel creando un
+atributo denominado "GRUPO" que dictamina sí es ANTAGONISTA o
+gestágenos. Se cambiaron los nombres correspondientes a la 2
+estimulación (al repetir nombres se decidió anteponer un 2X a los
+nombres, ejemplo X2DOSIS). Ya con estos cambios podemos empezar en R con
+la lectura correspondiente del fichero, se mostrará 4 filas para ir
+viendo de mejor manera el proceso de limpieza de datos:
+
+```{r Lectura }
+datos_fertilidad <- read.table("ESTUDIO_Fert_MD.txt", sep = "\t", header = TRUE, stringsAsFactors = TRUE, fileEncoding = "latin1") #lectura de la tabla, en el primer apartado hay que escribir el path del archivo : getwd() -> obtener camino ; setwd("path") -> marcar camino
+head(datos_fertilidad, 4) #devuelve las primeras 4 filas del dataset
+#str(datos) si quisieramos explorar el tipo de datos de cada columna
+```
+
+## **Limpieza y filtrado de datos:**
+
+A pesar de haber realizado una primera ojeada al dataset previa al
+análisis en R, faltan bastantes datos por limpiar y perfeccionar, desde
+incongruencias, valores erróneos o consideraciones para facilitarnos el
+análisis en un futuro. A continuación sé hará:
+
+-   Convertir los valores vacios en NA
+-   Corregir aquellos valores erroneos como texto en variables númericas
+    (caso FERTILIZ con "VITRI" O DOSIS).
+-   Considerar arreglar algunas variables (transformarlas en binarias)
+    -   Factor masculino: Donante es lo mismo que NO, Severo es SI, Si
+        frag es Si, Si leve es SI.
+    -   Factor femenino: Edad y BR o BR solo o BR/Edad pasan a ser "BR";
+        Adeno, adeno/endo, endo,útero d. pasan a ser todas "ENDO".
+    -   BLASTUL.: Hubo un error a la hora de copiar datos y existe un
+        valor que fue guardado como N0 (Cero), esto debe ser corregido a
+        NO
+    -   FET Y X2FET: tenían un error donde captaba " si" en vez de "si"
+        para una fila.
+-   Corrección de valores decimales que fueron guardados con 0, en lugar
+    de 0.
+-   División de los grupos de tratamientos (antagonistas y gestágenos),
+    bastante útil para poder observar las diferencias entre grupos y
+    poder diferenciar cada grupo más facilmente sin contaminarlos con
+    datos de todos los pacientes.
+
+```{r Limpieza y filtrado de datos, warning=FALSE, message=FALSE}
+#install.packages("dplyr")
+library(dplyr) #herramienta en R utilizada para el manejo eficiente de datos
+
+# Convertir los valores nulos "" en NA
+datos_fertilidad[datos_fertilidad == ""] <- NA
+
+# Función para eliminar caracteres no numéricos y convertir una variable a numérica.
+corrige_variable_num <- function(dataset, variable, no_eliminar = "[^0-9.]") {
+  dataset[[variable]] <- as.numeric(gsub(no_eliminar, "", dataset[[variable]]))
+  return(dataset)
+}
+
+# Aplicando la función en DOSIS, X2DOSIS y FERTILIZ
+datos_fertilidad <- corrige_variable_num(datos_fertilidad, "DOSIS")
+datos_fertilidad <- corrige_variable_num(datos_fertilidad, "FERTILIZ")
+datos_fertilidad <- corrige_variable_num(datos_fertilidad, "X2DOSIS")
+
+# Reemplazar valores en el Factor masculino según las consideraciones dichas en clase
+datos_fertilidad <- datos_fertilidad %>%
+  mutate(FACTOR.MAS = factor(case_when(
+    FACTOR.MAS %in% c("SEVERO", "SI Fragment", "SI LEVE","SI") ~ "SI",
+    TRUE ~ "NO" #todos los demás casos NO
+  ))) 
+
+# Reemplazar valores en el Factor femenino
+datos_fertilidad <- datos_fertilidad %>%
+  mutate(FACTOR.FEM.1 = factor(case_when(
+    FACTOR.FEM.1 %in% c("EDAD", "BR", "BR/EDAD", "EDAD/BR", "Edad") ~ "BR",
+    TRUE ~ "ENDO"
+  )))
+
+#EXTRA TENÍA UN error al contar con N0 (FIJARSE QUE ES UN CERO)
+datos_fertilidad <- datos_fertilidad %>%
+  mutate(BLASTUL. = factor(case_when(
+    BLASTUL. %in% c("No","NO","N0") ~ "NO",
+    TRUE ~ "SI"
+  ))) 
+
+#EXTRA Tenía un error donde captaba un "" y un  " si" como categorías diferentes
+datos_fertilidad <- datos_fertilidad %>%
+  mutate(FET = factor(case_when(
+    FET %in% c("No","NO","N0") ~ "NO",
+    TRUE ~ "SI"
+  ))) 
+#EXTRA Tenía un error donde captaba un "" y un  " si" como categorías diferentes
+datos_fertilidad <- datos_fertilidad %>%
+  mutate(X2FET = factor(case_when(
+    X2FET %in% c("No","NO","N0") ~ "NO",
+    TRUE ~ "SI"
+  ))) 
+
+#Funcion útil para evitar errores por valores 0,5 en luegar de 0.5
+arregla_decimal <- function(columna_decimal) {
+  columna_decimal <- gsub(",", ".", columna_decimal)
+  return(columna_decimal)
+}
+datos_fertilidad$AMH <- arregla_decimal(datos_fertilidad$AMH)
+datos_fertilidad$AMH <- as.numeric(as.character(datos_fertilidad$AMH))
+
+datos_divididos <- split(datos_fertilidad, datos_fertilidad$GRUPO)
+
+antagonistas <- datos_divididos[["ANTAGONISTAS"]]
+# Al trabajar con solo datos de ANTAGONISTAS NO hace falta seguir con la columna grupos la podríamos borrar
+#antagonistas <- antagonistas[, -which(names(antagonistas) == "GRUPO")]
+
+gestagenos <- datos_divididos[["GESTAGENOS"]]
+# Al trabajar con solo datos de GESTAGENOS NO hace falta seguir con la columna grupos
+#gestagenos <- gestagenos[, -which(names(gestagenos) == "GRUPO")]
+
+head(datos_fertilidad, 4) #Se puede observar los cambios realizados en factor Mas y fem, Y los NA en sus lugares correspondientes
+```
+
+## **Visualización de datos perdidos**
+
+Antes de remplazar los NA podría decirse que es parte fundamental
+entender el peso de nuestras acciones, cuantos NA existen en cada
+variable, si vamos a suponer muchos valores puede afectar la confianza
+de los resultados, podría seguirse un criterio de aquellas variables
+cuyos valores NA superen un 10% no sean remplazados, pero considero que
+esto podría afectar mi desenvolvimiento en la practica, así que tendré
+en cuenta que las variables **AMH** y **HMG** no son muy consistentes. A
+continuación graficaré el porcentaje de NA para cada variables.
+
+```{r grafica_porcentaje_NA}
+# Calcula el porcentaje de valores faltantes
+grafica_porcentajes_NA <-  function(datos){
+  na_percentage <- colMeans(is.na(datos)) * 100
+
+# Convierte los resultados a un data frame para ggplot
+na_df <- data.frame(variable = names(na_percentage), percentage = na_percentage)
+
+# Carga la biblioteca ggplot2
+library(ggplot2)
+
+# Crea el gráfico de barras
+ggplot(na_df, aes(x = variable, y = percentage)) +
+  geom_bar(stat = "identity", fill = "steelblue") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  labs(x = "Variable", y = "Porcentaje de NA", title = "Porcentaje de valores faltantes por variable")
+}
+
+```
+
+### **Gráfica de porcentajes de NA en el dataset entero**
+
+A continuación, la gráfica del total de pacientes, recordemos que serían
+79 pacientes, 60 que usan la metodología tradicional antagonistas y 19
+con gestágenos. De la gráfica podemos destacar como los valores de AMH
+que son NA superan el 60% y para el caso de HMG tanto en primera como
+segunda estimulación rondan por el 20%. Esto va a traer consecuencias
+como que el valor que se use para estimar dichos valores perdidos
+aparezca de una manera exagerada.
+
+```{r porcentajes_NA_dataset}
+grafica_porcentajes_NA(datos_fertilidad)
+```
+
+### **Gráfica de porcentajes de NA en el grupo ANTAGONISTA**
+
+A continuación la gráfica del los pacientes ANTAGONISTAS, Siendo similar
+vemos que de 60 casi un 80% de los datos de AMH son NA, esto es un dato
+bastante preocupante, casi dandonos idea que en futuros analisis esta
+variable no será ideal al contar con muy pocos datos o al imputarles
+datos estimados no sea fiel a la realidad.
+
+```{r porcentajes_NA_antag}
+grafica_porcentajes_NA(antagonistas)
+```
+
+### **Gráfica de porcentajes de NA en el grupo GESTAGENOS**
+
+A continuación la gráfica del total los pacientes GESTAGENOS, siendo 19
+pacientes con gestagenos. Aquí podemos concluir que la repartición de
+datos faltantes es similar en cada subgrupo aunque en antagonistas hay
+muchos más datos faltantes en proporción.
+
+```{r porcentajes_NA_gestagenos}
+grafica_porcentajes_NA(gestagenos)
+```
+
+## **Imputación de datos perdidos**
+
+Anteriormente terminamos de manejar los datos perdidos o erróneos, ya
+habiéndolos catalogados es necesario estimar los valores ausentes en
+base a los valores válidos de otras variables y/o casos de la muestra.
+Esto al ser un paso muy común en minería de datos se creara dentro de
+una función con intención de futuras reutilizaciones. Se logrará estimar
+valores a través del uso de *moda* en el caso de variables categóricas
+mientras que para las variables numéricas se usará la *media*. También
+considerando que uno de los objetivos es comparar la efectividad de
+ambos grupos de tratamientos se optó por tomar la media y la moda entre
+su **propio grupo** para obtener resultados más congruentes en futuros
+estudios al remplazar sus respectivos NA con valores correspondientes a
+su grupo y no al total de pacientes.
+
+```{r Rellenado de datos vacios o NA}
+rellenado_NA <- function(dataset) {
+
+  # Convertir los valores nulos "" en NA
+  dataset[dataset == ""] <- NA
+  
+  # Identificar las columnas (2) con valores ausentes (anyNA)
+  columnas_ausentes <- colnames(dataset)[apply(dataset, 2, anyNA)]
+
+  # Imputar valores faltantes por la media para las variables numéricas y la moda para las variables categóricas
+  dataset[columnas_ausentes] <- lapply(dataset[columnas_ausentes], function(col) {
+    if (is.numeric(col)) {
+      media <- mean(col, na.rm = TRUE)  # Calcular la media de la columna
+      col[is.na(col)] <- media  # Reemplazar los NA con la media
+    } else {
+      # Convertir las columnas a factores si no lo son
+      if (!is.factor(col)) {
+        col <- as.factor(col)
+      }
+      # Calcular la moda de la columna y reemplazar los NA con la moda
+      moda <- names(which.max(table(col)))
+      col[is.na(col)] <- moda
+    }
+    return(col)
+  })
+
+  # verificación
+  if (anyNA(dataset)) {
+    warning("Hubo un error inesperado, por algún motivo no sé relleno correctamente")
+  }
+  return(dataset)
+}
+#si quisieramos rellenar los NA según la media de TODOS los pacientes sería usar la función en datos_fertilidad
+#datos_fertilidad <-  rellenado_NA (datos_fertilidad)
+
+#Si queremos rellenar los NA con la media de cada grupo
+antagonistas <- rellenado_NA(antagonistas)
+
+gestagenos <- rellenado_NA(gestagenos)
+
+datos_fertilidad <- rbind(antagonistas, gestagenos) #MANTENGO la variable grupo
+head(datos_fertilidad,3)
+
+```
+
+# **Análisis univariante**
+
+El *análisis univariante* se refiere al estudio de una sola variable.
+Hay dos formas comunes de realizar un análisis univariante:
+
+## *Resumen de estadísticas:*
+
+Aquí, describimos la variable utilizando estadísticas de resumen. Estas
+estadísticas incluyen:
+
+-   **Medidas de tendencia central**, como la media y la mediana, que
+    indican dónde se encuentra el centro de los datos.
+-   **Medidas de dispersión**, como el rango, el rango intercuartílico,
+    la desviación estándar y la varianza, que describen cuán dispersos
+    están los valores en el conjunto de datos.
+
+Considero que son datos buenos para empezar a analizar nuestro dataset,
+siendo útil para encontrar errores, comportamientos y cosas a destacar.
+Solo lo haré con el dataset que engloba todos los pacientes, pero podría
+aplicarse para cada subgrupo para comparar. Por tema de ahorro de
+espacio y hacer más más ameno la corrección del trabajo.
+
+```{r estadisticas}
+calcula_estadis <- function(df) {
+  # Filtrar las columnas numéricas
+  columnas_numericas <- df[, sapply(df, is.numeric)]
+
+  # Calcular estadísticas para cada columna numérica
+  estadisticas <- data.frame(
+    Mínimo = apply(columnas_numericas, 2, min),
+    Máximo = apply(columnas_numericas, 2, max),
+    Media = apply(columnas_numericas, 2, mean),
+    Mediana = apply(columnas_numericas, 2, median),
+    Cuartil_1 = apply(columnas_numericas, 2, function(x) quantile(x, 0.25)),
+    Cuartil_3 = apply(columnas_numericas, 2, function(x) quantile(x, 0.75)),
+    Rango_Intercuantil = apply(columnas_numericas, 2, IQR),
+    Desviación_Típica = apply(columnas_numericas, 2, sd),
+    Varianza = apply(columnas_numericas, 2, var)
+  )
+
+  return(estadisticas)
+}
+
+calcula_estadis(datos_fertilidad)
+
+```
+
+## *Gráficos y Distribuciones de frecuencia:*
+
+Utilizamos gráficos como histogramas, diagramas de caja, curvas de
+densidad o gráficos circulares para visualizar la distribución de
+valores. Junto a la creación de una tabla de frecuencia para resumir la
+frecuencia con la que ocurren diferentes valores en la variable. En este
+punto sé hará una función capaz de otorgar automáticamente los graficos
+esto será bastante útil para tener una idea de que variables tienen una
+mayor proporción de una opción, errores cometidos en la limpieza de
+datos, etc. Dicha función no será ejecutada en este html porque es más
+de revisión general que algo a evaluar seriamente. (Además que generaría
+aproximadamente de 2 a 4 elementos por variable)
+
+```{r Graficos y Distribuciones de frecuencia}
+generador_graficas_automatico <- function(dato1, nom_col) {
+  es_cat1 <- is.factor(dato1)
+  
+  if (es_cat1) {
+    # Gráfico de barras
+    barplot(table(dato1), main = paste("Gráfico de barras de", nom_col), xlab = nom_col, ylab = "Frecuencia")
+    
+    # Pastel
+    pie(table(dato1), cex = 1.5, main = paste("Pastel de:", nom_col))
+  } else {
+    # Boxplot
+    boxplot(dato1, horizontal = TRUE, main = paste("Boxplot de:", nom_col))
+    
+    # Histograma
+    hist(dato1, main = paste("Histograma de", nom_col), ylab = "Frecuencia", xlab = nom_col)
+    
+    # Curva de densidad
+    densidad <- density(dato1)
+    lines(densidad, col = "black", lwd = 2)
+    
+    # Tabla de frecuencias
+    tabla_frecuencias <- data.frame(Valor = unique(dato1), Frecuencia = table(dato1))
+    print(tabla_frecuencias)
+  }
+}
+
+# Obtener los nombres de las columnas
+nombres_columnas <- colnames(antagonistas)
+
+# Si queremos generar los comandos tendremos que quitar el #
+resultados_analisis <- lapply(nombres_columnas, function(nombre_col) {
+  #generador_graficas_automatico(datos_fertilidad[[nombre_col]], nombre_col)
+  #generador_graficas_automatico(antagonistas[[nombre_col]], nombre_col)
+  #generador_graficas_automatico(gestagenos[[nombre_col]], nombre_col)
+})
+
+```
+
+### *Gráficos y Distribuciones de frecuencia casos particulares:*
+
+Al ejecutar la función generador_graficas_automatico nos dará todas las
+gráficas que deseamos de cada variable siendo en caso de categórica
+barplot más que suficiente y también un gráfico de pastel, mientras que
+en el caso de una variable numérica obtenemos el boxplot, el histograma,
+la curva de densidad y la tabla de frecuencias. No es necesario
+ejecutarlo y observar detalladamente cada gráfica, pero si es una
+herramienta útil para observar de manera rápida información de cada
+variable. De este modo es que podemos destacar:
+
+-   **ERROR EN FET Y X2FET:** En mi caso hubo un problema con FET Y
+    X2FET que no me había dado cuenta, al ser una variable categorica es
+    importante tener la opción que contenga 2 opciones para darnos
+    acceso a más herramientas, pero por un error en la limpieza de
+    código, contaba " " y " si" como categorías posibles aunque no
+    tuvieran elementos. Esto por comodidad se corrigió directamente en
+    la parte de limpieza
+
+-   **El gráfico de barras de AMH:** Podemos destacar que en el caso de
+    la variable AMH, como hemos estado viendo, al tener un porcentaje
+    altos de indeterminaciones, a la hora de sustituir las NA por su
+    respectiva media, nos da casi todos los valores en la media.
+
+```{r graficos de barras de AMH}
+hist(datos_fertilidad$AMH, main = "Histograma AMH", xlab = "AMH", ylab = "Frecuencia")
+```
+
+-   **El gráfico de la blastulación en la segunda semana para
+    gestagenos:** Este gráfico nos recuerda que todos los valores en el
+    grupo GESTAGENOS, es directamente si para la blastulación en la
+    segunda semana, este detalle nos advierte que en futuras funciones
+    como puede ser la multivariante el trabajar con gestágenos puede
+    darnos error al no tener más de 1 opción en sus variables, siendo
+    necesario modificarla antes de trabajar en dicho caso.
+
+También esto ya nos dará un atisbo de que el uso de GESTAGENOS es
+correcto, de 19 pacientes que lo usaron 19 lograron el evento. Aunque
+todavía queda estudiar otras variables, ya que al tener tan solo 19
+pacientes puede ser que sea coincidencia y el medicamento no afecte
+tanto como hace ver la gráfica. Igualmente es un buen indicio para
+darnos ideas a los resultados del análisis bivariante
+
+```{r tabla blastulacion gestagenos}
+barplot(table(gestagenos$X2BLASTUL.), main = "Gráfico de barras de paciente GESTAGENOS", xlab = "blastulación segunda semana", ylab = "Frecuencia")
+```
+
+# **Análisis Bivariante**
+
+El análisis *bivariante* es un método estadístico que examina cómo se
+relacionan dos variables diferentes. Su objetivo es determinar si existe
+un vínculo estadístico entre dos variables y, en caso afirmativo, con
+qué intensidad y en qué dirección.
+
+Al realizar un análisis bivariante hay un abundante catálogo de
+herramientas que se pueden aplicar, y al ser un método estadístico
+fundamental, nos interesará crear una función que a partir de 2
+variables de un conjunto de dato se determine el tipo de prueba que debe
+aplicarse, siendo:
+
+-   **Chi-cuadrado (`chisq.test`):** Aplicable entre variables
+    categóricas, la *hipótesis nula:* es *“No hay relación entre las
+    variables categóricas”.*
+-   **Fisher (`fisher.test`):** Aplicable entre variables categóricas,
+    la *hipótesis nula:* es *“No hay diferencia significativa entre las*
+    **varianzas** *de las dos muestras”.*
+    -   Si el número de observaciones en alguna de las celdas de la
+        tabla de contingencia es menor que 5, la aproximación asintótica
+        del test Chi-cuadrado no se considera válida, caso en el que la
+        literatura especializada recomienda el uso del test de Fisher.
+-   **t-test (`t.test`):** Aplicable entre variables categóricas o
+    númericas, la *hipótesis nula:* es *“La media de dos poblaciones es
+    igual”.*
+    -   La aplicación de los test estadísticos anteriores tienen
+        limitaciones en cuanto a las distribuciones de los datos. Entre
+        otras, asumen que los datos siguen distribuciones normales, por
+        lo que antes de su aplicación habrá que comprobar esta
+        condición, para lo que se suele usar el test de Shapiro-Wilk
+        (función shapiro.test).
+-   **Sapphire-test (`sapphire.test`):** la *hipótesis nula:* es *“No
+    hay diferencia entre una distribución normal y la variable”.*
+-   **Wilcox-test (`Wilcox.test`):** Aplicable entre variables
+    categóricas o númericas, ideal para comparar las medianas de dos
+    grupos cuando los datos no siguen una distribución normal. La
+    *hipótesis nula:* es *“No hay diferencia entre dos muestras
+    relacionadas”.*
+-   **Varianza (`var.test`):** Compara las medias de tres o más grupos
+    independientes. La *hipótesis nula:* es *“La varianza de varias
+    poblaciones son iguales”.*
+-   **Kruskal Test (`kruskal.test`):** Compara más de dos grupos
+    independientes cuando los datos no son normales. La *hipótesis
+    nula:* es *“La mediana de varias poblaciones son iguales”.*
+-   **Correlación de Pearson (`cor.test(datos,method = "pearson")`):**
+    Evalúa la relación lineal entre dos variables continuas. La
+    *hipótesis nula:* es *“No hay correlación lineal entre dos
+    variables”.*
+-   **Correlación de Spearman (`cor.test(datos,method = "spearman")`):**
+    Evalúa la relación monotónica (no necesariamente lineal) entre dos
+    variables. La *hipótesis nula:* es *“No hay correlación monótona
+    entre dos variables”.*
+
+La función debería devolvernos el **p-valor** que es la probabilidad de
+obtener un estadístico de prueba (como una correlación o diferencia de
+medias) suponiendo que la hipótesis nula es cierta. Si el p-valor es muy
+pequeño (generalmente menor que 0.05 o 0.01), se rechaza la hipótesis
+nula, lo que sugiere que hay una relación significativa entre las
+variables analizadas
+
+```{r Apartado 2_Analisis de asociacion, warning=FALSE}
+#Crear la funcion generica que mide la dependencia entre las variables mediante el p-valor
+realizar_analisis <- function(datos1, datos2) {
+  # Verificar si los datos son categóricos o numéricos
+  es_cat1 <- is.factor(datos1)
+  es_cat2 <- is.factor(datos2)
+  
+  # Si ambos son categóricos
+  if (es_cat1 && es_cat2) {
+    tabla_contingencia <- table(datos1, datos2)
+    if (sum(tabla_contingencia < 5) > 0) {
+      fisher_test <- fisher.test(tabla_contingencia)
+      return(fisher_test)
+
+    } else {
+      chi_test <- chisq.test(tabla_contingencia)
+      return(chi_test)
+    }
+  }
+  
+  # Si uno es categórico y el otro numérico
+  if ((es_cat1 && !es_cat2) || (!es_cat1 && es_cat2)) {
+    if (es_cat1) {
+      categ_var <- datos1
+      num_var <- datos2
+    } else {
+      categ_var <- datos2
+      num_var <- datos1
+    }
+    
+    # Comprobar tamaño de la muestra para el test de normalidad
+    if (length(num_var) >= 3 && length(num_var) <= 5000) {
+      # Comprobar normalidad de la variable numérica
+      shapiro_result <- suppressWarnings(shapiro.test(as.numeric(num_var)))
+      normalidad <- shapiro_result$p.value > 0.05
+      
+      # Si la distribución es normal
+      if (normalidad) {
+        if (es_cat1) {
+          t_test <- t.test(num_var ~ categ_var)
+          return(t_test)
+        } else {
+          anova_test <- aov(num_var ~ categ_var)
+          return(anova_test) #CUIDADO!! ESTE ACTUA DIFERENTE A LOS DEMAS
+        }
+      } else {  # Si la distribución no es normal
+        if (es_cat1) {
+          wilcox_test <- wilcox.test(num_var ~ categ_var)
+          return(wilcox_test)
+        } else {
+          kruskal_test <- kruskal.test(num_var ~ categ_var)
+          return(kruskal_test)
+        }
+      }
+    } else {
+      warning("Hubo un error inesperado, El tamaño de la muestra para el test de normalidad debe estar entre 3 y 5000.")
+    }
+  }
+  
+  # Si ambos son numéricos
+  if (!es_cat1 && !es_cat2) {
+    # Comprobar tamaño de las muestras para el test de normalidad
+    if (length(datos1) >= 3 && length(datos1) <= 5000 && length(datos2) >= 3 && length(datos2) <= 5000) {
+      # Comprobar normalidad de ambas variables numéricas
+      shapiro_result1 <- suppressWarnings(shapiro.test(as.numeric(datos1)))
+      shapiro_result2 <- suppressWarnings(shapiro.test(as.numeric(datos2)))
+      normalidad1 <- shapiro_result1$p.value > 0.05
+      normalidad2 <- shapiro_result2$p.value > 0.05
+      
+      # Si ambas distribuciones son normales
+      if (normalidad1 && normalidad2) {
+        pearson_corr <- cor.test(as.numeric(datos1), as.numeric(datos2), method = "pearson")
+        return(pearson_corr)
+      } else {  # Si alguna de las distribuciones no es normal
+        spearman_corr <- cor.test(as.numeric(datos1), as.numeric(datos2), method = "spearman")
+        return(spearman_corr)
+      }
+    } else {
+      warning("Hubo un error inesperado, El tamaño de la muestra para el test de normalidad debe estar entre 3 y 5000.")
+    }
+  }
+  warning("Las variables seleccionadas pueden contener algún fallo, revisa cuidadosamente lo que estas haciendo")
+}
+# Ejemplo de uso
+#resultado_analisis_Anta <- realizar_analisis(datos_fertilidad$EDAD, datos_fertilidad$FACTOR.MAS)
+#print(resultado_analisis_Anta) 
+
+filtraPorColumna <- function(dataset, columna) {
+  if (columna %in% colnames(dataset)) {
+    return(dataset[[columna]]) #equivalente a DATASET$COLUMNA
+  } else {
+    stop("Hubo un error con los nombres de las columnas")
+  }
+}
+
+Generar_tabla <- function(datos) {
+  # Crear un data frame vacío
+  tabla <- data.frame(Variable1 = character(), Variable2 = character(), ValorP = numeric(), Metodo = character(), stringsAsFactors=FALSE)
+  # Obtén todos los nombres de las variables del dataset
+  nombres_variables <- names(datos)
+
+  # Genera todas las combinaciones únicas de pares de variables
+  combinaciones <- combn(nombres_variables, 2, simplify = FALSE)
+  
+  # Calcula los valores p para cada par de variables
+  resultados <- lapply(combinaciones, function(par) {
+    var1 <- par[1]
+    var2 <- par[2]
+     
+    datos1 <- filtraPorColumna(datos, var1)
+    datos2 <- filtraPorColumna(datos, var2)
+    resultado_completo <- realizar_analisis(datos1, datos2)
+    
+    resultado <- resultado_completo$p.value
+    if (is.null(resultado)) {
+      resultado <- 1
+      # aov da valores demasiado diferentes, prefiero tratarlos aparte pero no quise alterar mucho la función
+    }
+    test_type <- resultado_completo$method
+    if (is.null(test_type)) {
+      test_type <- as.character(resultado_completo$call[1])
+    }
+
+    # Crear una fila con los resultados
+    fila_resultado <- data.frame(Variable1 = var1, Variable2 = var2, ValorP = resultado, Metodo = test_type)
+    return(fila_resultado)
+  })
+
+  # Combinar todas las filas en un único DataFrame
+  tabla <- do.call(rbind, resultados)
+  return(tabla)
+}
+
+# Ejemplo de uso con un conjunto de datos de muestra (reemplaza con tus datos reales)
+# Supongamos que `datos_fertilidad` es tu conjunto de datos
+resultado_df <- Generar_tabla(datos_fertilidad)
+tail(resultado_df)
+```
+
+## **Resultados del Análisis Bivariante**
+
+Al tener tantas variables es de interés obtener una tabla contando con
+las variables a analizar, el valor P y el método a usar. Esto es muy
+útil para observar que variables tienen una mayor relación con otra, o
+el caso contrario donde no pareciese haber ninguna conexión. Este
+apartado es bastante útil para obtener información valiosa podríamos: \*
+analizar si la respuesta en blastulación (evento) es idéntica para ambos
+grupos de tratamiento en primera y segunda estimulación. \* comprobar si
+las variables comunes a los pacientes (aquellas que no deberían tener
+relación con el tratamiento) son idénticas para los dos grupos de
+tratamientos (antagonistas y gestágenos) \* Apreciar que variables
+tienen una relación mayor con el evento. (Blastulación) \* Observar las
+variables con un valorP menor, significando que se encuentran
+relacionadas. \* Ver las variables con un valorP mayor, significando que
+no tienen ninguna relación.
+
+### **Blastulación (evento) y grupo de tratamiento:**
+
+Si analizamos la variable *GRUPO* en conjunto a la variable *BLASTUL.*
+(evento) o su contraparte para la *semana 2 (X2BLASTUL)*, Obtendremos lo
+siguiente: Para el caso de la primera semana el análisis bivariante nos
+da una pvalor de 0.8975 muy alejado a los umbrales deseados, no podremos
+discernir de la hipótesis nula. Las variables no parecen llevar
+correlación. Lo cual tiene parte de sentido porque en la parte teórica
+varios links mencionaban que los tratamientos a pesar de ser de breve
+duración los resultados no son inmediatos, entonces es comprensible que
+en la primera semana de tratamiento no se consiga lograr el evento tan
+rápidamente.
+
+```{r Comparación gráfica entre dos variables}
+# Asigna las columnas a variables con nombres descriptivos
+blastul_data <- datos_fertilidad$BLASTUL.
+grupo_data <- datos_fertilidad$GRUPO
+
+# Realiza el análisis
+resultado_analisis_blastul <- realizar_analisis(blastul_data, grupo_data)
+print(resultado_analisis_blastul)
+# Crea un gráfico de barras utilizando los datos de resultado_analisis_blastul
+barplot(table(blastul_data, grupo_data), beside = TRUE, legend.text = TRUE, horiz = TRUE,main = "PRIMERA SEMANA")
+
+```
+
+Para el caso de la segunda semana el análisis bivariante nos da una
+pvalor de 0.000881 (menor que 0.01) el resultado es el deseado y
+esperado. sí podremos discernir de la hipótesis nula. Las variables
+cuentan con correlación. Ya habiendo empezado el tratamiento se empiezan
+a ver resultados, aunque seguimos con el hilo que se lleva mencionando
+varias veces, que siendo los 19 pacientes que se les aplico gestagenos
+todos lograron el evento era de esperarse que el estudio nos relevara
+una diferencia entre los grupos, destacando positivamente el tratamiento
+de Gestagagenos para la segunda semana.
+
+La aplicación de Gestagenos es muy prometedora, pero se aconsejaría
+aumentar el número de pacientes a estudiar, ya que aunque tengamos
+confianza en que no son resultados al azar, al estar hablando del campo
+clínico donde una pequeña diferencia puede conllevar cambios grandes, se
+recomienda el aumento de uso de gestagenos al igual que un estudio con
+más pacientes de ser posible.
+
+```{r blastulación 2 y grupo}
+# Asigna las columnas a variables con nombres descriptivos
+blastul_SEMANA2 <- datos_fertilidad$X2BLASTUL.
+grupo_data <- datos_fertilidad$GRUPO
+
+# Realiza el análisis
+resultado_analisis_blastul2 <- realizar_analisis(blastul_SEMANA2, grupo_data)
+print(resultado_analisis_blastul2)
+# Crea un gráfico de barras utilizando los datos de resultado_analisis_blastul
+barplot(table(blastul_SEMANA2, grupo_data), beside = TRUE, legend.text = TRUE, horiz = TRUE, main = "SEGUNDA SEMANA")
+```
+
+### **Relación entre las variables comunes y el grupo al que pertenece el paciente:**
+
+En este apartado lo ideal sería que no tengan una gran relación, ya que
+en caso de que los pacientes de un grupo tengan características que
+mantengan una relación con los de su mismo grupo puede llegar a dar
+errores donde se toman como patrones simples coincidencias, de que los
+pacientes a los que se les suministro un medicamento pudieron haber
+tenido mejores resultados por las variables que comparten dichos
+pacientes antes que el medicamento.
+
+Podemos que hay variables que nos apoyan a pensar que los grupos de
+medicamento son diversos y no tienen relación como: \* AFC (0.259
+\>0.05) \* FACTOR.MAS (0.274\>0.05) \* BMI (0.749 \>0.05) \* EDAD
+(0.349\>0.05)
+
+Aunque también estan los casos donde las variables estan relacionadas,
+en este caso podemos observar en los datos que los pacientes asignados
+en cada grupo coinciden: \* AMH (2.526323e-06 \<0.01) \* FACTOR.FEM.1
+(5.119705e-05 \<0.01)
+
+```{r variables comunes entre grupos, warning=FALSE}
+# Filtra las filas donde "Variable2" sea igual a "GRUPO" y "Variable1" sea una de las variables especificadas
+variables_a_filtrar <- c( "AFC", "AMH", "BMI", "FACTOR.MAS", "FACTOR.FEM.1")
+resultados_grupos <- resultado_df[
+    (resultado_df$Variable2 == "GRUPO" & 
+    resultado_df$Variable1 %in% variables_a_filtrar) | (resultado_df$Variable1 == "GRUPO"),
+]
+
+# Imprime los resultados
+print(resultados_grupos)
+
+#caso DE QUERER MÁS DATOS
+#edad_grupo <-  summary(realizar_analisis(datos_fertilidad$EDAD, datos_fertilidad$GRUPO))
+
+```
+
+Los factores femeninos asociados pueden influir en el éxito de la
+terapia dentro de los grupos. Es decir que el factor femenino influye
+significativamente en la elección del grupo de tratamiento. Podemos
+observar en la siguiente grafica como para el grupo ANTAGONISTAS es más
+común el factor fem ENDO mientras que para el grupo GESTAGENOS es más
+común el endo. Mostrando la correlación y capaz explicación del porque
+tanto triunfo para el grupo GESTAGENOS.
+
+```{r GRAFICA factorfem y grupo}
+#data frame para trabajar más comodamente
+df <- data.frame(
+  FACTOR.FEM.1 = datos_fertilidad$FACTOR.FEM.1,
+  GRUPO = datos_fertilidad$GRUPO
+)
+
+# Gráfico de barras para dos variables categóricas
+library(ggplot2)
+ggplot(df, aes(x = GRUPO, fill = FACTOR.FEM.1)) +
+  geom_bar(stat = "count", position = "dodge") +
+  labs(x = "GRUPO", y = "Conteo factorFEM", title = "Relación entre GRUPO y FACTOR.FEM.1.")
+
+```
+
+### **Relación entre la Blastulación y las distintas variables**
+
+A continuación se resaltará en una tabla las varuavkes que tienen una
+mayor correlación con el evento para la primera semana:
+
+Para un pvalor menor a 0,01 (un estándar de confianza elevado) nos da de
+resultado 7 variables fuertemente correlacionadas para la primera
+semana, tiene sentido a que aunque el código no discierne entre
+variables, las variables más relacionadas son aquellas comunes o que
+también son de la primera semana.
+
+```{r blastulación y las otras variables}
+
+resultados_blastul <- resultado_df[
+    (resultado_df$Variable2 == "BLASTUL.") | (resultado_df$Variable1 == "BLASTUL."),
+]
+
+resultados_blastul <- resultados_blastul[resultados_blastul$ValorP < 0.01, ]
+
+resultados_blastul <- resultados_blastul[order(resultados_blastul$ValorP, decreasing = F), ]
+print(resultados_blastul)
+```
+
+#### **Relación entre la Blastulación (SEGUNDA SEMANA) y las distintas variables**
+
+Repetimos, pero destacando ahora que trabajamos con la blastulación de
+la segunda semana. Ahora que contamos con las variables más relacionadas
+para cada blastulación podemos observar distintos detalles: \* Las
+variables mantienen una correlación lógica según lo visto en teoría y en
+el seguimiento del trabajo, dándole prioridad a los valores comunes o de
+la semana \* La elección de grupo sale a tomar importancia en la segunda
+semana de tratamiento, al ser más relevante que otras variables comunes
+\* La variable CONG y BT.AA..BB (Número de blastos de buena calidad)
+tienen el mayor índice de correlación para su respectiva semana, es una
+variable con mucho peso para el evento.
+
+```{r blastulación segunda semanas}
+
+blastul_semana2 <- resultado_df[
+    (resultado_df$Variable2 == "X2BLASTUL.") | (resultado_df$Variable1 == "X2BLASTUL."),
+]
+
+blastul_semana2 <- blastul_semana2[blastul_semana2$ValorP < 0.01, ]
+
+blastul_semana2 <- blastul_semana2[order(blastul_semana2$ValorP, decreasing = F), ]
+print(blastul_semana2)
+```
+
+### **Porcentaje de filas con valorP\<0.01:**
+
+Regresando a la tabla con todos los análisis bivariantes realizados creo
+que es importante destacar detalles como que gran número de los tests
+(65) llegaron a tener un valorP inferior al 0,01. Lo cual indica gran
+correlación estadística con gran grado de confianza. Las dos variables
+están estrechamente relacionadas y que la asociación observada no es
+simplemente el resultado del azar. En la salida del siguiente código se
+podrá apreciar como el 19.06% de los test realizados dan un ValorP menor
+que un 0,01% y tiene mucho sentido al estar trabajando con casos reales
+en variables que se ven tan estrechamente relacionadas.
+
+```{r}
+resultado_df_filtrado <- resultado_df[resultado_df$Metodo != "aov", ]
+# Contar el número total de filas en resultado_df_filtrado
+total_filas <- nrow(resultado_df_filtrado)
+
+# Filtrar las filas donde ValorP < 0.01
+filas_valor_p_menor <- resultado_df_filtrado[resultado_df_filtrado$ValorP < 0.01, ]
+
+# Contar el número de filas que cumplen la condición
+num_filas_valor_p_menor <- nrow(filas_valor_p_menor)
+
+# Calcular el porcentaje
+porcentaje <- (num_filas_valor_p_menor / total_filas) * 100
+
+# Imprimir el resultado
+cat("Porcentaje de filas con ValorP < 0.01:", round(porcentaje, 2), "%\n")
+
+# Ordenar las filas por ValorP (de menor a mayor)
+filas_valor_p_menor_ordenadas <- filas_valor_p_menor[order(filas_valor_p_menor$ValorP), ]
+
+# Mostrar las primeras 10 filas
+head(filas_valor_p_menor_ordenadas, 10)
+```
+
+### **Variables con menos relación entre ellas:**
+
+Esto sugiere que no hay asociación significativa entre estas variables.
+Es decir, no hay evidencia de que estén relacionadas.
+
+De esto podemos comprobar que los test si resultaron bien programados
+para habernos dado los valores esperados al estudiar el caso de grupos y
+blastulación, pero en variables que no tienen relación directa como
+podría ser el mismo factor.mas y factor.fem NO tienen relación, Y tiene
+mucho sentido que la mujer tenga problemas de fertilidad no se vea
+relacionada con el hombre. También podemos resaltar que FET, junto al
+factor femenino y masculino no tienen relación fuerte con bastantes
+variables.
+
+```{r}
+# Ordenar las filas por ValorP (de menor a mayor)
+resultado_df_filtrado <- resultado_df_filtrado[order(resultado_df_filtrado$ValorP, decreasing = TRUE), ]
+
+# Mostrar las primeras 10 filas
+head(resultado_df_filtrado, 10)
+```
+
+# **Análisis multivariante**
+
+El *análisis multivariante* se refiere a la utilización de técnicas
+estadísticas para analizar conjuntos de datos que incluyen más de una
+variable. Su objetivo es encontrar patrones, relaciones y asociaciones
+entre estas variables.
+
+## **Análisis multivariante para BLASTULACIÓN**
+
+En este apartado se estima un modelo multivariante que permita explicar
+si la blastulación puede ser inferida desde algunas de las variables no
+específicas a la estimulación, si recordamos el apartado anterior vimos
+la importancia de FACTOR.FEM.1 junto a AMH y edad, para que BLASTUL. sea
+"SI", es normal esperar que el modelo generado cuente con esas 3
+variables o al menos algunas de estas. Usaremos un algoritmo de
+selección de variables de tipo "stepwise" (hacia atrás "backwards"),
+sabiendo que funciona especialmente bien cuando las variables están
+presentes como es el caso, se compilará el código y se irán eliminando
+las variables hasta encontrar el que mejor influya.
+
+```{r Apartado 3}
+# Cargar la librería MASS
+library(MASS)
+# Ajustar el modelo de regresión logística para gestagenos
+lr_fit_Juntos <- glm(BLASTUL. == "SI" ~ EDAD + AFC + AMH + FACTOR.MAS + FACTOR.FEM.1 + BMI, family = binomial("logit") , data = datos_fertilidad) # Resumen del modelo  data=...)
+summary(lr_fit_Juntos)
+
+lr.fit.back <- stepAIC(lr_fit_Juntos, direction = "backward")
+summary(lr.fit.back)
+
+
+```
+
+Quedando finalmente FACTOR.FEM.1 con el valor ENDO como era de esperar y
+la EDAD que no estaba tan claro si este resultaría ser tan
+influenciador.
+
+## **BLASTULACIÓN semana 2, ¿Qué grupo es mejor?**
+
+Sí la intención del estudio era ver si con uso de *gestágenos* los
+resultados son equiparables al protocolo habitual con antagonistas,
+podemos afirmar que sí. De hecho para estos datos presentan mejores
+resultados que el protocolo tradicional.
+
+```{r}
+lol <- glm((X2BLASTUL.=="SI")*1.0 ~  GRUPO,
+                      family = binomial(link = "logit"), data = datos_fertilidad)
+
+
+lr.fit.back <- stepAIC(lol, direction = "forward")
+summary(lol)
+
+```
+
+# **Conclusiones:**
+
+En este trabajo se pudo apreciar una muy buena experiencia para aplicar
+los conocimientos obtenidos en clase, trabajar con datos reales, es un
+desafío muy bueno. Se han presentado bastantes problemas que uno no sé
+esperaría estando acostumbrado a trabajar con datos perfectos que vienen
+de un archivo txt y listo para probar comandos. Además de ser una
+actividad relacionada con la carrera que en lo personal me abrió la
+mente para ver nuevas áreas de interés para mi futuro laboral. Puedo
+decir que he aprendido bastante tanto con el trabajo que se ve reflejado
+en este informe como todos los comandos y gráficas que decidí omitir
+porque son herramientas más aplicables en otros casos.
+
+En este trabajo se fue usando y redescubriendo las herramientas de
+estadisticas Aunque mi análisis no es perfecto y creo que hay margen de
+mejora, me pregunto si incluso con un análisis impecable podríamos haber
+obtenido conclusiones claras y relaciones significativas para presentar
+a nuestro cliente, en este trabajo se sumó el desafío de pensar que no
+solo vamos a encontrarnos gente con nuestros conocimientos, si no que
+habrá que hacer todo lo posible para simplificar los resultados de la
+manera más optima posible. La complejidad inherente de los datos y la
+naturaleza multifacética de los factores que influyen en la salud
+femenina hacen que el proceso sea intrincado y muy relacionado de manera
+complejas.
+
+En última instancia, nuestro objetivo es proporcionar información
+valiosa y basada en evidencia para mejorar la atención médica y la toma
+de decisiones. A pesar de las limitaciones, este proyecto nos ha
+permitido aprender y crecer, y esperamos que nuestras conclusiones,
+aunque modestas, contribuyan al avance de la investigación en este campo
+crucial.

@@ -1,1 +1,1056 @@
-xd recorde que la gente de mi clase se copia
+---
+title: "2Cancer_Mama_By_Diego_De_Pablo"
+subtitle: "Actividad #2. Diseño de modelos predictivos en biomedicina"
+author:
+- name: "Diego De Pablo (depablodiego@uma.es)"
+  affiliation: "Universidade da Málaga"
+date: "2024-04-26"
+logo: rmarkdown.png
+output:
+  html_document:
+    toc: yes                  # incluir tabla de contenido
+    toc_float: no            # toc flotante a la izquierda
+    number_sections: yes      # numerar secciones y subsecciones
+    code_folding: show        # por defecto el código aparecerá mostrada
+    #mathjax: local            # emplea una copia local de MathJax, hay que establecer:
+    #self_contained: false     # las dependencias se guardan en ficheros externos
+    #lib_dir: libs             # directorio para librerías (Bootstrap, MathJax, ...)
+    fontsize: 12pt
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# **Introducción**
+
+El [cáncer de mama](https://www.mayoclinic.org/es/diseases-conditions/breast-cancer/symptoms-causes/syc-20352470) es un tumor maligno que se origina en el tejido de la glándula mamaria, es el tipo más común de cáncer en mujeres a nivel mundial. Estos tumores malignos se caracterizan por tener un crecimiento descontrolado y la capacidad de extenderse a otros tejidos. Están formados por células que han acumulado alteraciones en su material genético.
+
+La detección temprana del cáncer de mama salva vidas, mejora la calidad de vida y reduce la necesidad de tratamientos invasivos, por eso la creación de modelos predictivos es de gran utilidad. 
+
+## **Caso de estudio**
+
+En este trabajo se estudiará 508 muestras de pacientes recolectadas de varias fuentes, pero siguiendo las mismas pautas, cada muestra está asociada a 8 variables y la variable evento que es el estado de la respuesta patológica ([Metástasis](https://www.cancer.net/es/desplazarse-por-atenci%C3%B3n-del-c%C3%A1ncer/conceptos-b%C3%A1sicos-sobre-el-c%C3%A1ncer/%C2%BFqu%C3%A9-es-la-met%C3%A1stasis)) significa que el cáncer se ha diseminado a una parte del cuerpo distinta de donde comenzó. Cuando esto sucede, los médicos dicen que el cáncer ha hecho “metástasis”.
+
+En esta ocasión se busca **obtener un modelo** para desplegarlo en clínica, es decir, que el oncólogo pueda usar esa ecuación obtenida en la consulta para introducir los valores de un nuevo paciente y obtener un valor entre 0 y 1 que se intepretará como **la probabilidad de que se produzca el evento**, en este caso la recidiva. En base a esta información, el clínico tomará la decisión terapeútica que considere conveniente.
+
+## **Variables del conjunto de datos:**
+
+Si quieres más información de como dicha variable afecta al evento puedes acceder a los links, estos llevarán a
+más información: 
+
+*Las variables de nuestro estudio:*
+
+-   **Muestra:** Identificador de la muestra (Es un nombre único que a priori no da información) 
+-   **Edad:** valor numérico con la [edad de los pacientes](https://www.cdc.gov/spanish/cancer/breast/basic_info/risk_factors.htm)  que van desde los 24 años hasta los 75 años. (más adelante habrá un apartado donde se profundiza más)
+-   **REst:** [Receptores de estrógenos](https://medlineplus.gov/spanish/pruebas-de-laboratorio/pruebas-de-receptores-de-estrogeno-y-de-progesterona/)  (variable binaria con valores N para negativos y P para Positivos)
+-   **RPro:** [Receptores de progesterona](https://medlineplus.gov/spanish/pruebas-de-laboratorio/pruebas-de-receptores-de-estrogeno-y-de-progesterona/) (variable binaria con valores N para negativos y P para Positivos)
+-   **Her2:** [expresión de HER2](https://www.cancer.org/es/cancer/tipos/cancer-de-seno/comprension-de-un-diagnostico-de-cancer-de-seno/estado-de-her2-del-cancer-de-seno.html) (variable binaria con valores N para normales y P para Sobrexpresado)
+-   **Estadio:** [Estadío de enfermedad](https://www.cancer.gov/espanol/cancer/diagnostico-estadificacion/estadificacion) (De T1 a T4)
+-   **NodAfec:** [Ganglios afectados](https://thancguide.org/es/cancer-types/neck/metastatic-lymph-nodes/) (de N0 a N3)
+-   **Grado:** [grado del tumor](https://www.cancer.gov/espanol/cancer/diagnostico-estadificacion/diagnostico/grado-del-tumor) (de 1 a 3)
+-   **Fenotipo:** [subtipo determinado por PAM50](http://www.bio-sequence.com/pam50/) (Es decir: desde Basal, Her2, LumA, LumB y normal)
+
+La variable **evento**:
+
+-   **PCR:** [Estado de la respuesta patológica](https://www.clinicbarcelona.org/asistencia/enfermedades/cancer-de-mama/pruebas-y-diagnostico) (1 para pacientes en metástasis, 0 para los que no)
+
+## **indice explicado:**
+A pesar de que este trabajo no existe un guión lineal considero que a la hora de estar avanzado es bueno tener una breve descripción:  
+
+1) _Lectura y corrección de datos:_
+La fase inicial del análisis de datos en R se centra en la preparación y limpieza de los datos, abordando aspectos cruciales como la eliminación de datos erróneos, la visualización de datos perdidos, la corrección previa a la imputación, y la imputación de valores faltantes. Se procede con la eliminación de datos faltantes específicamente para el evento principal, como es el caso de los valores no disponibles para la PCR. Además, se llevan a cabo modificaciones en las variables según sea necesario para mejorar la calidad y relevancia de los datos. En particular, se exploran diversas opciones para la agrupación de edades, asegurando así una preparación adecuada para análisis posteriores.
+
+2) _División de datos_ 
+Una vez familiarizado con la base de datos y habiendo encontrado aquellas variables problematicas (variables desequilibradas principalmente), se decidirá como optar por ellas, Más adelante se analizará a detalle y mostrará la causa de guardar un dataset limpio original, un dataset eliminando variables como "Muestra" o "Her2" por problemas visto en la corrección de datos. Y la aplicación de oversampling y undersampling para comparar la mejora que proporciona ante un problema de variable evento descompensada.
+
+3) _Validación interna de un modelo_ 
+La validación interna de un modelo predictivo es un proceso mediante el cual se evalúa la capacidad predictiva del modelo utilizando los mismos datos que se utilizaron para entrenarlo. Este proceso es importante para comprender cómo se comporta el modelo en datos que ya ha visto durante el entrenamiento y para detectar posibles problemas como el sobreajuste (overfitting). Se verán multiples cantidades de métricas que nos ayuden a evaluar cúal es el mejor modelo.
+
+4) _Búsqueda exhaustiva:_
+Una vez estudiado todos los métodos considerados pertinentes para evaluar un modelo podremos descubrir cúal es el mejor modelo considerando todos los puntos anteriores. 
+
+
+# **Lectura y corrección de datos:**
+A continuación se trae el dataset, es un archivo txt así que se lee y se guarda en la variable _datos_cancer_, se muestra algunas filas para ver como vienen los datos inicialmente:
+```{r Lectura }
+datos_iniciales <- read.table("Datos_Cancer_Mama2.txt", sep = "\t", header = TRUE, stringsAsFactors = TRUE, fileEncoding = "latin1")
+
+head(datos_iniciales, 4) #Imprimo por pantalla las primeras 4 filas para mostrar los datos iniciales
+#View(datos_iniciales) #Este codigo es útil para poder visualizar los datos en su totalidad antes de modificarlos
+```
+## **Eliminación de datos erroneos:**
+En las variables REst, RPro y Her2, no debería de tener el valor I (solo acepta valores para P (positiva) y para N (negativa)), a continuación se elimina dicha variabley se tomarán como datos perdidos (NA).
+```{r Eliminación de datos erroneos}
+datos_cancer <-  datos_iniciales
+# Reemplazar "I" con NA en cada columna
+datos_cancer$REst[datos_cancer$REst == "I"] <- NA
+datos_cancer$RPro[datos_cancer$RPro == "I"] <- NA
+datos_cancer$Her2[datos_cancer$Her2 == "I"] <- NA
+
+# Eliminar el nivel "I" de los factores
+datos_cancer$REst <- droplevels(datos_cancer$REst)
+datos_cancer$RPro <- droplevels(datos_cancer$RPro)
+datos_cancer$Her2 <- droplevels(datos_cancer$Her2)
+#View(datos_cancer)
+```
+## **Visualización de datos perdidos**
+
+Antes de remplazar los NA podría decirse que es parte fundamental entender el peso de nuestras acciones, cuantos datos perdidos existen en cada variable, si vamos a suponer muchos valores puede afectar la confianza de los resultados, un criterio es aquellas variables cuyos valores NA superen un 10% no sean remplazados.
+
+Viendo la gráfica a continuación podrá observar que podremos seguir trabajando con los datos, la variable con un mayor número de NA es **grado** correspondiendo a cerca de un 7% de todos sus datos 37 son NA que deberemos rellenar con la moda. Igualmente, los datos son muy consistentes. Más adelante se hablará más sobre la variable evento.
+```{r grafica_porcentaje_NA}
+# Calcula el porcentaje de valores faltantes
+grafica_porcentajes_NA <-  function(datos){
+  na_percentage <- colMeans(is.na(datos)) * 100
+
+# Convierte los resultados a un data frame para ggplot
+na_df <- data.frame(variable = names(na_percentage), percentage = na_percentage)
+
+# Carga la biblioteca ggplot2
+library(ggplot2)
+
+# Crea el gráfico de barras
+ggplot(na_df, aes(x = variable, y = percentage)) +
+  geom_bar(stat = "identity", fill = "red") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  labs(x = "Variable", y = "Porcentaje de NA", title = "Porcentaje de valores faltantes por variable")
+}
+
+#summary(datos_cancer)
+grafica_porcentajes_NA(datos_cancer)
+
+```
+
+## **Arreglo de datos previo a la imputación:**
+
+Como a la hora de imputar o analizar datos usaré funciones que trabajan de manera distinta dependiendo si es un factor, un número, etc. Es importante definir bien el tipo de dato antes de usarlo, la variable grado a pesar de tener valores de 1 a 3 no es exactamente una variable númerica, ya que se categoriza entre el grado 1, 2 o 3. no tiene sentido imputar sus valores perdidos por la media.
+
+Además se va a trabajar en simplificar los datos como puede ser la edad que viene dado en números decimales, no tiene sentido para este trabajo usar valores decimales. Por eso se redondea dejando el dato en enteros.
+```{r arreglo_de_Decimales}
+#Funcion útil para evitar errores por valores 0,5 en luegar de 0.5
+arregla_decimal <- function(columna_decimal) {
+  columna_decimal <- gsub(",", ".", columna_decimal)
+  return(columna_decimal)
+}
+datos_cancer$Edad <- arregla_decimal(datos_cancer$Edad)
+datos_cancer$Edad <- as.integer(datos_cancer$Edad) #Redondea para abajo usualmente
+
+datos_cancer$Grado <- as.factor(datos_cancer$Grado)
+#View(datos_cancer)
+```
+
+## **Eliminación de datos NA para el evento (PCR):**
+
+De nuestros *508* datos iniciales, 20 tienen NA en nuestra variable evento, como contamos con datos suficientes podremos eliminar el riesgo de arruinar el modelo predictivo al remplazar esos 20 datos con la moda, es por esto por lo que se eliminarán directamente esas 20 filas, que nos elimina 2 casos de NA en la variable grado. 
+
+Ahora contamos con *488 datos de estudio* pero contamos con una buena fiabilidad de los datos. 
+```{r eliminacion NA_evento}
+summary(datos_cancer)
+#Eliminar las filas con NA en PCR es lo mejor, porque es muy peligroso generar resultados por imputacion en las casillas de la variable evento.
+datos_cancer <- datos_cancer[!is.na(datos_cancer$PCR), ]
+print("Resumen de datos sin NA en nuestra variable evento")
+summary(datos_cancer)
+
+```
+## **Imputación de datos perdidos:**
+
+Anteriormente terminamos de manejar los datos perdidos o erróneos, ya habiéndolos catalogados es necesario estimar los valores ausentes en base a los valores válidos de otras variables y/o casos de la muestra. Esto al ser un paso muy común en minería de datos se creara dentro de una función con intención de futuras reutilizaciones. Se logrará estimar valores a través del uso de *moda* en el caso de variables categóricas mientras que para las variables numéricas se usará la *media*. 
+```{r Rellenado de datos vacios o NA}
+rellenado_NA <- function(dataset) {
+
+  # Convertir los valores nulos "" en NA
+  dataset[dataset == ""] <- NA
+  
+  # Identificar las columnas (2) con valores ausentes (anyNA)
+  columnas_ausentes <- colnames(dataset)[apply(dataset, 2, anyNA)]
+
+  # Imputar valores faltantes por la media para las variables numéricas y la moda para las variables categóricas
+  dataset[columnas_ausentes] <- lapply(dataset[columnas_ausentes], function(col) {
+    if (is.numeric(col)) {
+      media <- mean(col, na.rm = TRUE)  # Calcular la media de la columna
+      col[is.na(col)] <- media  # Reemplazar los NA con la media
+    } else {
+      # Convertir las columnas a factores si no lo son
+      if (!is.factor(col)) {
+        col <- as.factor(col)
+      }
+      # Calcular la moda de la columna y reemplazar los NA con la moda
+      moda <- names(which.max(table(col)))
+      col[is.na(col)] <- moda
+    }
+    return(col)
+  })
+
+  # verificación
+  if (anyNA(dataset)) {
+    warning("Hubo un error inesperado, por algún motivo no sé relleno correctamente")
+  }
+  return(dataset)
+}
+
+
+datos_cancer <- rellenado_NA(datos_cancer)
+#View(datos_cancer)
+
+```
+
+## **Modificación de variables:**
+Se hán realizado las siguientes modificaciones tomando en cuenta lo hablado en clase:
+
+-   categorizar las variables (grado podríamos cambiar el 1, 2, 3 por I, II, III).
+-   En estadio contamos solo 3 individuos con t0, estos son muy pocos. Tenemos 3 opciones, eliminar las filas, implementarla en t0 o lo que haré que es unir los t0 y t1 y crear una nueva variable llamada t0-t1.
+```{r}
+# Convertir la columna Grado a tipo carácter
+datos_cancer$Grado <- as.character(datos_cancer$Grado)
+
+# Realizar los reemplazos
+datos_cancer$Grado <- replace(datos_cancer$Grado, datos_cancer$Grado == "1", "I (1)")
+datos_cancer$Grado <- replace(datos_cancer$Grado, datos_cancer$Grado == "2", "II (2)")
+datos_cancer$Grado <- replace(datos_cancer$Grado, datos_cancer$Grado == "3", "III (3)")
+
+# Convertir la columna Grado de nuevo a factor, si lo deseas
+datos_cancer$Grado <- as.factor(datos_cancer$Grado)
+
+# Contar el número de filas con "T0" en la columna Estadio
+num_filas_T0 <- sum(datos_cancer$Estadio == "T0")
+
+
+# Contar el número de filas con "T0" en la columna Estadio
+num_filas_T1 <- sum(datos_cancer$Estadio == "T1")
+
+# Convertir la columna Estadio a tipo carácter
+datos_cancer$Estadio <- as.character(datos_cancer$Estadio)
+
+# Realizar los reemplazos
+datos_cancer$Estadio[datos_cancer$Estadio == "T0"] <- "T0-T1"
+datos_cancer$Estadio[datos_cancer$Estadio == "T1"] <- "T0-T1"
+
+# Contar el número de filas con "T0" en la columna Estadio
+num_filas <- sum(datos_cancer$Estadio == "T0-T1")
+
+# Convertir la columna Estadio de nuevo a factor, si lo deseas
+datos_cancer$Estadio <- as.factor(datos_cancer$Estadio)
+
+print(paste("Para la variable Estadio el número de filas con T0 es:", num_filas_T0, " y el número de filas con T1 es:", num_filas_T1, "Por lo cual para evitar tener una categoría tan pequeña se unificaran en T0-T1", num_filas))
+
+```
+## **Distintas posibilidades de agrupación de edad:**
+Se ha encontrado en diversos estudios que el riesgo de desarrollar cáncer de mama aumenta con la edad . En la mayoría de los casos, la enfermedad se desarrolla en mujeres de más de 50 años. De hecho, la mediana de edad para desarrollar cáncer de mama es de 63 años.
+En clase se habló sobre la decisión de si debes o no agrupar las edades dependerá de tu conocimiento del dominio y de los resultados de tu análisis exploratorio de datos. Como la materia me está interesando bastante, no obstante sigo con mi falta de experiencia  he decidido probar las siguientes agrupaciones y ver cuál produce un modelo más preciso y robusto.
+
+-   **No agrupar las edades:** Esta decición nos ahorra manipulación de datos, el problema con esto es que las edades van desde los 24 a los 75 años, es decir 49 edades posibles lo cual termina siendo una variable con una amplia posibilidad de valores, a veces dificultando el uso de algunas herramientas o aumentando el gasto computacional.
+-   **Agrupar las edades basándote en etapas de la vida:** Este umbral corresponderá a las etapas recomendadas para tener atención al cáncer de mama según varios convenios. siendo más claro tomaremos: menos de 40 (mujeres jóvenes), 40-49 (edad en la que se recomienda comenzar las mamografías), 50-69 (edad en la que las mamografías son más efectivas), 70 y más (edad avanzada), agrupando la edad en estos 4 grupos.
+-   **agrupación binaria:** En clase se habló de que en hospital es muy habitual dividir las edades en menores de 25 (jóvenes), de 25-50 (adultos) y 50 a 75 (adultos mayores), aunque como nuestros datos van de 24 a 75, decidí optar por dos subgrupos, siendo adulto joven las edades entre 24 y 49 años y un adulto mayor entre 50 y 75 años. 
+```{r agrupacion_Edad}
+# Agrupación de edades basada en etapas de la vida
+datos_cancer$edad_umbralizada <- cut(datos_cancer$Edad,
+                              breaks = c(-Inf, 40, 49, 69, Inf),
+                              labels = c("(40 o menos)", "(40-49)", "(50-69)", "(70 o más)"),
+                              include.lowest = TRUE)
+datos_cancer$edad_binaria <- ifelse(datos_cancer$Edad < 50, "Adulto joven (24-49)", "Adulto mayor (50-75)")
+head(datos_cancer, 4)
+```
+
+# **Busqueda de información previa al trabajo:**
+
+Ya teniendo nuestros datos en orden (ya se eliminaron los errores, imputaron datos perdidos y otras medidas), antes de diseñar un modelos predictivo, es bastante útil recordar de la practica anterior el estudio de las variabeles mediante histogramas, diagramas de caja, curvas de densidad, gráficos circulares, entre otros. Que ayuden a visualizar de mejor manera la distribución de las variables. (A continuación se reciclará la función de la práctica anterior y más adelante se hablaran de los casos más interesantes que nos pueden dar información útil sobre que esperar en los resultados de modelos predictivos)
+
+```{r Graficos y Distribuciones de frecuencia}
+generador_graficas_automatico <- function(dato1, nom_col) {
+ # Asegurarse de que la variable es un factor
+ dato1 <- as.factor(dato1)
+  
+ es_cat1 <- is.factor(dato1)
+  
+ if (es_cat1) {
+    # Gráfico de barras
+    barplot(table(dato1), main = paste("Gráfico de barras de", nom_col), xlab = nom_col, ylab = "Frecuencia")
+    
+    # Pastel
+    pie(table(dato1), cex = 1.5, main = paste("Pastel de:", nom_col))
+ } else {
+    # Boxplot
+    boxplot(dato1, horizontal = TRUE, main = paste("Boxplot de:", nom_col))
+    
+    # Histograma
+    hist(dato1, main = paste("Histograma de", nom_col), ylab = "Frecuencia", xlab = nom_col)
+    
+    # Curva de densidad
+    densidad <- density(dato1)
+    lines(densidad, col = "black", lwd = 2)
+    
+    # Tabla de frecuencias
+    tabla_frecuencias <- data.frame(Valor = unique(dato1), Frecuencia = table(dato1))
+    print(tabla_frecuencias)
+ }
+}
+
+# Obtener los nombres de las columnas
+#nombres_columnas <- colnames(datos_cancer)
+
+# Si queremos generar los comandos tendremos que quitar el #
+#resultados_analisis <- lapply(nombres_columnas, function(nombre_col) {
+#  generador_graficas_automatico(datos_cancer[[nombre_col]], nombre_col)
+#  View(datos_cancer)
+#})
+```
+## **Grafica PCR**
+
+Antes de hacer validación podemos visualizar que tan dificil será el problema dependiendo de la distribución de la variable evento, al saber si las clases estan desbalanceadas. A continuación una grafíca de la variable PCR mostrando el número de personas 1 para pacientes en metástasis y 0 para los que no, veremos que nuestras clases son desequilibradas, para esto lo primero que haríamos es buscar un modelo simple, en este programa si no tuvieramos cuidado un posible modelo es que todos los pacientes tienen 0 en la variable evento y esto nos daría casi un 80% de acierto, cuando es un modelo ridiculo que no tiene ningún sentido usar.
+
+Una solución que podrámos evaluar en la parte de división de datos es el oversampling (sobremuestreo) que es una técnica de muestreo que se emplea habitualmente cuando tenemos una baja proporción de casos positivos en clasificaciones binomiales.
+
+```{r grafica_PCR}
+barplot(table(datos_cancer$PCR), main = "Gráfico de barras de PCR", xlab = "PCR", ylab = "Frecuencia")
+
+#porcentaje de 0 en la variable PCR
+porcentaje_0 <- round(sum(datos_cancer$PCR == "0") / length(datos_cancer$PCR) * 100, 2)
+print(paste("El porcentaje de la variable PCR que tiene un valor de '0' es:", porcentaje_0, "%"))
+```
+
+## **Gráficas de barras Her2**
+
+Otra gráfica que podríamos destacar es el gráfico de barras de Her2, la cual nos muestra el exagerado desequilibrio que tiene esta variable, y que contamos con muy pocos casos de Her2 positivo, esto la hace una variable no muy confiable inicialmente.
+
+Más adelante se decidirá que sé hará, pero probablemente es que terminemos descartando dichca variable ya que a la hora de aplicar el stepAIC una clase con una distribución donde cuanta con tan solo 5 P es muy dificil que sea elegida como una variable importante para predecir PCR, y al momento de aplicar fuerza bruta contar con esta variable puede generar más problemas al poder distribuirse todas las P en el grupo de entrenamiento o de testeo, dejando el otro porcentaje con un solo level para evaluar.
+
+```{r grafica_Her2}
+barplot(table(datos_cancer$Her2), main = "Gráfico de barras de HER2", xlab = "Her2", ylab = "Frecuencia")
+```
+
+## **Resúmen de las edades**
+En este trabajo se realizó distintos umbrales para evaluar la edad, a la hora de ver la distribución tanto en el caso no umbralizado como las 2 umbralizaciones tuvieron un buen reparto de pacientes y a primera instancia se ve que es una idea interesante evaluar los 3 casos que agrupan de manera diferente. 
+
+## **variable Muestra**
+Por ultimo podría destacar lo que se viene diciendo de la variable muestra no es una variable útil para hacer un análisis real, cada muestra tiene un valor clave identificativo que este es el valor es único para cada muestra por ende a la hora de crear un modelo podremos descartar esta variable.
+
+## **Eliminación de variables:**  
+
+Se eliminan variables que pueden dar problemas a futuro, como es el caso de muestras y her2, estas variables no aportan practicamente información y mantenerlas solo dará errores en los métodos que se usan a continuación.
+
+Además aprovecharé el dataset datos_cancer para guardar un dataset sin las edades agregadas por mi. 
+```{r Eliminación de variables problematicas}
+datos_cancer<- subset(datos_cancer, select=-Muestra) #Dataset tras limpieza e imputación
+datos_cancer<- subset(datos_cancer, select=-Her2) #Dataset principal con el que se trabajará (sin Her2)
+datos_cancer_def<- datos_cancer
+datos_cancer<- subset(datos_cancer, select=-edad_binaria)
+datos_cancer<- subset(datos_cancer, select=-edad_umbralizada)
+```
+## **stepAIC** 
+
+Antes de continuar voy a llamar la función StepAIC para tener un modelo bueno al cúal evaluar. *StepAIC* es una herramienta útil para la selección de modelos en análisis de regresión. Ayuda a encontrar el equilibrio entre la complejidad del modelo y su capacidad para explicar los datos observados. En el contexto del dataset utilizado, StepAIC identificó las siguientes variables como las más importantes para predecir _PCR:_ **Estadio**, **Grado** y **Fenotipo**. Es importante tener en cuenta que aunque StepAIC ofrece una buena calidad en la selección de variables, no obstante, no garantiza que la combinación identificada sea la óptima. Esto se debe a que StepAIC no evalúa exhaustivamente todas las combinaciones posibles de variables. Para abordar esta limitación, más adelante aplicaremos un algoritmo de fuerza bruta que nos proporcionará una tabla con todas las combinaciones posibles, lo que nos permitirá validar si la solución propuesta por StepAIC sigue siendo la mejor opción.
+
+Además, es interesante destacar la umbralización de las edades, en la edad binaria que consta en la división en dos grupos, donde los adultos jóvenes tienen entre 24 y 50 años, y los adultos mayores tienen entre 51 y 75 años. Esta variable inicialmente fue eliminada sin afectar el AIC, lo que sugiere que este agrupamiento puede ser demasiado general para el problema y el caso específico en cuestión. Por otro lado, la umbralización de la edad en cuatro grupos específicos para el cáncer de mama resultó ser efectiva. Redujimos 49 edades distintas a solo 4 grupos y observamos que la edad umbralizada, que abarca desde los 40 hasta los 49 años, es el segundo coeficiente más relacionado con PCR. Además, es importante destacar que tanto la edad como la edad umbralizada fueron las últimas variables en ser eliminadas durante el proceso de selección de características.
+```{r stepAIC}
+# Hay que cargar la librería MASS, donde se encuentra la función stepAIC
+library(MASS)
+# Stepwise backward selection
+# ---------------------------
+# Primero, se crea el modelo completo. El "." indica que incluye todas las variables del conjunto de datos.
+# En el parámetro data se pasan los datos imputados mediante la eliminación de los NA´s. Es importante destacar que el algoritmo stepAIC no funciona correctamente con valores NA´s.
+lr.fit1 <- glm(PCR ~ ., data = datos_cancer_def, family = binomial("logit"))
+print("Resumen de los valores que más afectan al resultado de la PCR")
+summary(lr.fit1)
+# Realizar selección de variables utilizando stepAIC
+print("Disculpe el exceso de texto, pero considero necesario mostrar la elección de stepAIC")
+modelo_seleccionado <- stepAIC(lr.fit1, direction = "backward")
+# Resumen del modelo seleccionado
+#summary(modelo_seleccionado)
+```
+Las variables más importantes son grado, estadio, fenotipo.
+De entre todas ellas fenotipo es la más importante teniendo los valores de femLumA y B como los más relevantes en cuanto a relación con PCR refiere.
+
+# **División de datos, entrenamiento de modelos y evaluación de modelos:**
+
+Un **modelo predictivo**, también conocido como modelo de predicción, es un conjunto de herramientas y técnicas estadísticas que se utilizan para pronosticar y predecir el comportamiento futuro basándose en datos históricos. En nuestro caso, se buscará el mejor modelo a partir de los datos que hemos estado trabajando, _logrando un modelo capaz de predecir la variable evento para nuevos pacientes._
+
+Para este trabajo, me centraré primero en **hablar de las herramientas por separado** y al finalizar haré un análisis más exhaustivo de los resultados y las combinaciones distintas que nos pueden proporcionar. Aunque no deben tener un orden específico, se trabajará siguiendo la siguiente estructura:
+
+**1. Dataset elegido y técnicas de procesamiento:**
+
+Antes de crear un modelo, hay un último paso que podemos hacer y es aplicar técnicas para mejorar nuestro dataset únicamente con el objetivo de dar un mejor modelo. Aquí a partir del modelo obtenido hasta el momento y consideraremos la aplicación de técnicas como:
+
+-   **Oversampling:** Se utiliza para aumentar el número de observaciones en la clase minoritaria. Buscando un equilibro en la variable.
+
+-   **Undersampling:** Al contrario del Over se utiliza para disminuir el número de observaciones en la clase mayoritaria.
+
+**2. Métodos de evaluación del modelo:**
+
+Antes de trabajar en un modelo, lo ideal sería saber qué queremos y a qué nos referimos como buen modelo. Existe una gran cantidad de métodos para evaluar que nos dan distintas métricas y robustez de resultados. Se usarán métricas como:
+
+-   **Matriz de confusión:**  Esta matriz muestra el número de casos correctamente clasificados y mal clasificados en cada categoría.
+
+-   **Accuracy:**  Mide la proporción de casos correctamente clasificados.
+
+-   **Sensibilidad:**   Mide la proporción de casos positivos correctamente clasificados como positivos.
+
+-   **Especificidad:**  Mide la proporción de casos negativos correctamente clasificados como negativos.
+
+-   **F1-score:** Mide la media armónica entre la sensibilidad y la especificidad.
+
+-   **Curva ROC:** Esta curva muestra la relación entre la tasa de verdaderos positivos (TPR) y la tasa de falsos positivos (FPR) para diferentes umbrales de clasificación.
+
+-   **Área bajo la curva (AUC):** Esta medida indica la capacidad del modelo para discriminar entre casos positivos y negativos.
+
+**3. Validación interna de los modelos:**
+
+Antes de evaluar un modelo, se tiene que saber qué tipo de validación interna se va a usar. Se pueden utilizar diversas prácticas, como:
+
+-   **Testear la calidad del modelo con los propios datos que se usaron:** a pesar que esta práctica no es recomendable, ya que puede dar lugar a un sobreajuste del modelo. Se busca observar los resultados que puede dar.
+-   **Metodología holdout con diversas proporciones:** Se divide el dataset en dos conjuntos: uno de entrenamiento y otro de prueba. El modelo se entrena con el conjunto de entrenamiento y se evalúa con el conjunto de prueba.
+-   **Método de “Repeated-HoldOut”:** Práctica similar al anterior, pero con número de iteraciones que nos dará resultados más robustos al coste de un mayor esfuerzo computacional.
+-   **Método de “k-fold Cross Validation:**  Se divide el dataset en k conjuntos. Se entrena el modelo k veces, utilizando cada vez un conjunto diferente como conjunto de prueba.
+ 
+Para probar cada punto se usará tanto el modelo utilizando todas las variables como el uso del stepAIC para cada uno de los puntos anteriormente dicho. Al finalizar el análisis de las herramientas por separado, **se realizará un análisis exhaustivo** de los resultados y las combinaciones distintas que nos pueden proporcionar. Se compararán los diferentes modelos y se seleccionará el mejor modelo en función de los resultados obtenidos.
+
+Es importante destacar que no existe un único método de evaluación perfecto. La elección del método o métodos a utilizar dependerá del problema específico que se esté abordando y de los objetivos del análisis, en este trabajo se busca aprender más que obtener una solución final apta para todo problema.
+
+
+## **Dataset elegido y técnicas de procesamiento:**
+
+A pesar de que hasta el momento llevamos un buen tiempo dedicado a la limpieza de datos y organización del dataset, todavía quedan cosas que podríamos aplicar. Ya en este punto de la practica se tomarán decisiones que favorezcan el trabajo de un modelo predictivo lo más fácil posible y que nos asegure buenos resultados.
+
+### **Eliminación de variables problemáticas:**
+
+El análisis previo ha identificado variables que pueden obstaculizar el rendimiento de los modelos predictivos. La variable **muestra**, al ser un identificador único para cada muestra, no aporta información relevante para la predicción y genera errores en las metodologías exploradas. Por lo tanto, se eliminará del dataset.
+
+Adicionalmente, se propone eliminar la variable Her2 en un nuevo dataframe llamado _datos_cancer_def_. Durante la división de datos en conjuntos de entrenamiento y prueba (holdout), una distribución desigual exagerada como la de Her2 podría generar errores en el análisis. Eliminar esta variable evitará este problema.
+
+Pero en su mayoría vamos a trabajar evaluando las columnas: "Edad",  "REst", "RPro", "Estadio", "NodAfec", "Grado", "Fenotipo", *"PCR"*,  "edad_umbralizada" y "edad_binaria".
+
+
+
+### **Oversampling para equilibrar la distribución de clases:**
+
+La distribución desigual de las clases en el dataset puede afectar negativamente el rendimiento del modelo. Para abordarlo, se creará un nuevo dataframe llamado datos_oversampling. En este dataframe, la clase minoritaria se sobremuestrea replicando observaciones aleatoriamente. El objetivo es equilibrar la distribución de las clases y mejorar el rendimiento del modelo.
+
+```{r oversampling}
+
+oversample_data <- function(dataset, target_col, event_posi=1, event_nega=0, semilla=10) {
+  set.seed(semilla)
+  # Dividir el conjunto de datos en aquellas cuyo valor de la variable evento es positivo (1) y negativo (0)
+  positive <- dataset[dataset[[target_col]] == event_posi, ]
+  negative <- dataset[dataset[[target_col]] == event_nega, ]
+  
+  # Calcular el número de instancias positivas y negativas
+  num_positive <- nrow(positive)
+  num_negative <- nrow(negative)
+  
+  # Determinar cuál es la clase menos representada
+  minor <- ifelse(num_positive < num_negative, 1, 0)
+  
+  # Determinar cuántas instancias adicionales necesitamos generar
+  num_to_generate <- abs(num_positive - num_negative)
+  
+  # Realizar oversampling generando instancias adicionales aleatorias de la clase menos representada
+  if (minor == 1) {
+    additional <- positive[sample(num_positive, num_to_generate, replace = TRUE), ]
+  } else {
+    additional <- negative[sample(num_negative, num_to_generate, replace = TRUE), ]
+  }
+  
+  # Combinar el conjunto de datos original con las instancias adicionales
+  oversampled_dataset <- rbind(dataset, additional)
+  
+  return(oversampled_dataset)
+}
+datos_oversampling= oversample_data(datos_cancer_def,"PCR")
+cat("El número de filas de datos_oversampling es ", nrow(datos_oversampling), " donde la variable evento se encuentra equilibrada artificialmente.\n")
+
+```
+
+### **Undersampling para equilibrar la distribución de clases:**
+
+De forma similar al oversampling, se creará un nuevo dataframe llamado datos_undersampling. En este caso, la clase mayoritaria se submuestrea eliminando observaciones aleatoriamente. El objetivo, nuevamente, es equilibrar la distribución de las clases y mejorar el rendimiento del modelo.
+
+```{r undersample}
+undersample_data <- function(dataset, target_col, event_posi=1, event_nega=0, seed=69) {
+  set.seed(seed)
+  # Divide the dataset into positive and negative instances
+  positive <- dataset[dataset[[target_col]] == event_posi, ]
+  negative <- dataset[dataset[[target_col]] == event_nega, ]
+
+  # Calculate the number of positive and negative instances
+  num_positive <- nrow(positive)
+  num_negative <- nrow(negative)
+
+  # Determine the majority class
+  majority <- ifelse(num_positive > num_negative, 1, 0)
+
+  # Determine how many instances to remove from the majority class
+  num_to_remove <- abs(num_positive - num_negative)
+
+  # Perform undersampling by randomly removing instances from the majority class
+  if (majority == 1) {
+    to_remove <- sample(nrow(positive), num_to_remove, replace = FALSE)
+    positive <- positive[-to_remove, ]
+  } else {
+    to_remove <- sample(nrow(negative), num_to_remove, replace = FALSE)
+    negative <- negative[-to_remove, ]
+  }
+
+  # Combine the undersampled dataset
+  undersampled_dataset <- rbind(positive, negative)
+
+  return(undersampled_dataset)
+}
+
+datos_undersampling <- undersample_data(datos_cancer_def, "PCR")
+cat("El número de filas de datos_undersampling es ", nrow(datos_undersampling), " donde la variable evento se encuentra equilibrada artificialmente.\n")
+```
+
+### **Resumen los datasets trabajados:**
+
+Hasta ahora hemos visto distintas formas de tener el dataset a continuación un breve resumen de los datasets y las ventajas y desventajas que conllevan:
+
+-   _datos_iniciales:_ Es el dataset original, inicialmente mi intención era mostrar las pocas posibiliades o errores que nos puede dar por tratar con los datos con NA, valores erroneos y tal cual fueron dados. No obstante ni vale la pena mostrarlo en el trabajo, trabajar con datos sin ningún control de limpieza funciones como stepAIC, HoldOut, métodos de cálculo de métricas automáticas, dan muchos errores al ser suceptibles a NA, clases desequilibradas y sobrecarga de trabajo con variables, mi conclusión es que la cantidad de errores que da trabajar con los datos sin limpiar hace que ni valga la pena de ponerlo como opción final.
+
+-   _datos_cancer:_ es la versión limpia del dataset original, sin la variable muestra y conservando Her2. Esta conservación puede ser beneficiosa al ser más fiel a los datos originales, pero la división aleatoria en entrenamiento y test puede generar errores debido al desequilibrio entre las clases. Para evitarlo, se podría utilizar técnicas de muestreo estratificado (conocidos), solo tendrá una variable para las edades.
+
+-   _datos_cancer_def:_ Es parecida a la anterior pero tomando la libertad de descartar Her2, este modelo es muy parecido a los datos iniciales pero nos facilita muchisimo el uso de los futuros métodos, contando con el único problema de que la variable evento esta desequilibrada (cerca del 20% es evento positivo y el 80% es negativo).
+
+-   _datos_oversampling:_ Sé le aplica oversampling a datos_cancer_def y ahora podremos trabajar con este dataset muy facilmente al tener la variable evento equilibrada, el problema es que tiene datos ficticios generando casi 290 filas donde la variable evento sea positiva. Esto ya hace que los resultados no sean muy fiables.
+
+-   _datos_undersampling:_ En vez de over se le aplica under en vez de generar 290 filas donde la variable evento sea positiva, esta vez descartamos 290 filas, aunque esta ocasión no tenemos datos ficticios, reducimos el total de filas a 198, quedando un dataset que esta equilibrado y es fiable, los datos de entrenamiento y de testeo serán mucho menor y más susceptibles  a que los datos erroóneos tomen más peso.
+
+
+
+## **Métodos de evaluación del modelo:**
+
+Antes de adentrarnos en el desarrollo del modelo, es crucial definir claramente los objetivos y la interpretación de un *"buen modelo"*. En el ámbito del aprendizaje automático, la evaluación del modelo desempeña un papel fundamental para determinar su rendimiento y confiabilidad. A tal efecto, se dispone de una amplia gama de métodos de evaluación que proporcionan diversas métricas y robustez a los resultados.
+
+En este apartado, exploraremos en profundidad las [métricas de evaluación](https://www.juanbarrios.com/la-matriz-de-confusion-y-sus-metricas/) seleccionadas para nuestro modelo:
+
+-   **Matriz de confusión:**  La matriz de confusión es una herramienta fundamental para visualizar el rendimiento del modelo en la clasificación de casos. Esta matriz presenta un desglose detallado de los resultados, clasificando los casos en función de su predicción real y la predicción del modelo. Se compone de cuatro categorías: 
+
+_Verdaderos positivos (VP):_ Representa la cantidad de casos positivos correctamente clasificados como positivos por el modelo.
+
+_Falsos negativos (FN):_ Indica la cantidad de casos positivos que el modelo erróneamente clasificó como negativos.
+
+_Verdaderos negativos (VN):_ Representa la cantidad de casos negativos correctamente clasificados como negativos por el modelo.
+
+_Falsos positivos (FP):_ Indica la cantidad de casos negativos que el modelo erróneamente clasificó como positivos.
+
+-   **Accuracy:**   también llamada precisión es una métrica simple y ampliamente utilizada que mide la proporción de casos correctamente clasificados por el modelo, independientemente de la clase. Se calcula como la siguiente fórmula: _Precisión = (VP + VN) / (VP + VN + FP + FN)_ 
+
+Un valor de precisión alto indica que el modelo tiene una buena capacidad general para clasificar correctamente los casos. No obstante, es importante considerar que la precisión **puede ser engañosa** en escenarios con clases desequilibradas, donde una clase domina sobre la otra como hemos visto en nuestro dataset.
+
+-   **Sensibilidad:**  también conocida como tasa de verdaderos positivos (TPR), mide la proporción de casos positivos que el modelo identifica correctamente como positivos. Se calcula como la siguiente fórmula: _Sensibilidad = VP / (VP + FN)_
+
+-   **Especificidad:**  también conocida como tasa de verdaderos negativos (TNR), mide la proporción de casos negativos que el modelo identifica correctamente como negativos. Se calcula como la siguiente fórmula: _Especificidad = VN / (VN + FP)_
+
+-   **F1-score:** es una medida que combina la sensibilidad y la especificidad en una sola métrica, proporcionando una evaluación equilibrada del rendimiento del modelo en ambas clases. Se calcula como la siguiente fórmula: _F1-score = 2 * (Sensibilidad * Especificidad) / (Sensibilidad + Especificidad)_
+
+-   **Curva ROC:** es una representación gráfica que muestra la relación entre la tasa de verdaderos positivos (TPR) y la tasa de falsos positivos (FPR) para diferentes umbrales de clasificación. El umbral de clasificación es un valor utilizado para decidir si un caso se clasifica como positivo o negativo.
+
+Una curva ROC ideal se ubicaría en la esquina superior izquierda del gráfico, indicando una TPR alta y una FPR baja para todos los umbrales de clasificación. Un área bajo la curva ROC (AUC) cercana a 1 indica un buen rendimiento del modelo para discriminar entre casos positivos y negativos.
+
+-   **Área bajo la curva (AUC):** El AUC es una medida numérica que representa la capacidad del modelo para discriminar entre casos positivos y negativos. Se calcula como el área bajo la curva ROC. Un valor de AUC cercano a 1 indica que el modelo tiene una alta capacidad para distinguir entre las dos clases.
+
+Al tener tantas métricas de evaluación considere ponerla en una función que devolviera todas menos la matriz confusión Y la curva roc. 
+
+A continuación me paro más detenidamente en ellas:
+
+### **Ejemplo matriz Confusión:**
+
+En el siguiente código se muestra como se hace la predicción con los datos que se usaron de entrenamiento, se tomó esta decisión para mostrar cómo se comporta el modelo en este caso. Más adelante veremos la separación del dataset en porción de entrenamiento y en porción de testeo, por el momento destacar que nos devuelve resultados elevados, pero tampoco tan sorprendentes para ser datos que ya fueron vistos, el problema con estos modelos es que no podemos cerciorarnos que realmente este aprendiendo o memorizando. Si usamos los mismos datos todas las métricas devolverán valores que establecen que nuestro modelo es muy bueno, pero mientras no sea testeado con datos reales no tendremos información de que tan buen predictor es.
+
+
+```{r matriz_confusion}
+# Realizar predicciones en el conjunto de prueba
+predicciones <- predict(lr.fit1, newdata = datos_cancer_def, type = "response")
+
+# Esta línea de código utiliza la función ifelse() para convertir las predicciones continuas (valores numéricos entre 0 y 1) en clases discretas (1 para positivo y 0 para negativo).
+predicted_classes <- ifelse(predicciones > 0.5, 1, 0)
+
+#matriz confusion
+conf_matrix <- table(datos_cancer_def$PCR, predicted_classes)
+
+print("La matriz confusión:")
+print(conf_matrix)
+
+```
+Aquí observamos que, aunque todos los datos que se testean ya fue visto por el modelo sigue cometiendo 94 fallos acertando poco menos de 400. Para ubicar los términos antes dichos los verdaderos positivos vendrían a ser aquellos valores predichos como 1 que en realidad son 1, correspondiendo al valor 15 en la parte inferior derecha de la matriz, lo mismo para el positivo falso ubicado en la segunda columna de la primera fila (siendo un 0 que fue predicho como 1 por nuestro  modelo), siguiendo la misma lógica para los otros dos.
+
+### **Ejemplo curva  ROC:**
+
+Usando la librería pROC nos facilitá la creación de la curva, vemos que el valor del área bajo la curva es un muy buen indicador de la calidad de predicción de nuestro modelo, aunque tiene sus propios problemas, veremos como a continuación un modelo que es testeado con sus propios datos de enternamiento devuelve un valor muy bajo, esto debido a varios factores como el desequilibrio de la variable evento, el área bajo la curva podría dar mejores resultados para valores continuos al reducir el coste de error, etc.
+
+*Criterios para evaluar el AUC (Área bajo la curva ROC):*
+
+-   **AUC cercano a 1:**  indica un modelo excepcionalmente bueno para discriminar entre casos positivos y negativos. Esto significa que el modelo es capaz de clasificar correctamente la mayoría de las instancias positivas antes que las negativas, con una tasa de error muy baja.
+
+-   **AUC cercano a 0.5:** 
+Un AUC cercano a 0.5 indica un modelo con un rendimiento promedio, parecido a una detección aleatoria. En este caso, el modelo no tiene una clara preferencia por clasificar correctamente las instancias positivas o negativas, y su capacidad para discriminar entre ellas es limitada, deberíamos optar por tener valores mayores a 0.7.
+
+-   **AUC menor a 0.5:** 
+Un AUC menor a 0.5 indica un modelo que podría estar invirtiendo las clases. Es decir, el modelo está clasificando incorrectamente la mayoría de las instancias positivas como negativas, y viceversa. Este tipo de modelo no es confiable para la tarea de clasificación.
+
+```{r curva roc, message=FALSE}
+library(pROC)
+# Calcular la curva ROC
+roc_obj <- roc(datos_cancer_def$PCR, predicted_classes)
+
+# Graficar la curva ROC
+plot(roc_obj, main='Curva ROC', print.auc=TRUE, auc.polygon=TRUE,
+     grid=TRUE, legacy.axes=TRUE, percent=TRUE)
+
+# Imprimir el valor del área bajo la curva (AUC)
+cat('Área bajo la curva (AUC):', auc(roc_obj), '\n')
+```
+
+### **Función capaz de devolver métricas**
+Inicialmente esta iba a ser una función encargada de estudiar netamente los resultados de la matriz confusión, pero por conveniencia también se adapto para devolver el área bajo la curva ROC, también un "error" que sucede es que en caso de no equilibrar la variable evento (recordemos que actualmente la variable PCR es casi un 80% 0 lo cual nos abre escenarios como si dividimos en porción entrenamiento y porción testeo, los 20% correspondiente al 1 vayan al entrenamiento dejando a la mitad la matriz confusion).
+
+```{r calculando_parametros, message=FALSE}
+library(pROC)
+calcular_param <- function(original, predict) {
+  
+  suppressWarnings(matriz_confusion <- table(original, predict))
+    # Comprobar si la matriz de confusión es 2x1
+  if (ncol(matriz_confusion) == 1 && nrow(matriz_confusion) == 2) {
+    # Crear una matriz de confusión 2x2 rellenada con ceros
+    new_conf_matrix <- matrix(0, nrow = 2, ncol = 2, dimnames = list(c("0", "1"), c("0", "1")))
+    # Copiar los valores de la matriz original a la nueva matriz
+    new_conf_matrix[, 1] <- matriz_confusion[, 1]
+    matriz_confusion <- new_conf_matrix
+  }
+  
+    
+  VN <- matriz_confusion[1, 1]
+  FP <- matriz_confusion[1, 2]
+  VP <- matriz_confusion[2, 2]
+  FN <- matriz_confusion[2, 1]
+  #La Exactitud  (en inglés, “Accuracy”) (VP+VN)/(VP+FP+FN+VN) ACIERTOS/TOTAL
+  accuracy <- round((VP+VN)/(VP+FP+FN+VN), digits = 2)
+
+  # La Precisión VP/(VP+FP), lo que sería igual :  Verdaderos positivos / Total Enfermos
+  precision <- round(VP/(VP+FP), digits = 2)
+  
+  # La Sensibilidad (“Recall” o “Sensitivity” ),VP/(VP+FN)
+  sensibilidad <- round((VP/(VP+FN)), digits = 2)
+
+
+  # La Especificidad (“Especificity”) también conocida como la Tasa de Verdaderos Negativos, (“true negative rate”)
+  #VN/(VN+FP)
+  especificidad <- round((VN/(VN+FP)), digits = 2)
+
+  # Calcular el F1-score
+  f1_score <- round(2 * (precision * sensibilidad) / (precision + sensibilidad), digits = 2)
+
+  #te calculo la roc
+  roc_obj <- roc(original, predict)
+
+  # Valor del área bajo la curva (AUC)
+  AUC <- round(auc(roc_obj), digits = 3)
+  
+  return(c(accuracy, precision, sensibilidad, especificidad, f1_score, AUC))
+}
+
+imprimir_param <- function(calc){
+    cat("Parámetros de evaluación del modelo:",
+      paste("Exactitud (accuracy):", calc[1]),
+      paste("Precision:", calc[2]),
+      paste("sensibilidad:", calc[3]),
+      paste("especificidad:", calc[4]),
+      paste("F1-score:", calc[5]), 
+      paste("Área bajo la curva ROC (AUC):", calc[6]),
+      "\n")
+  
+}
+
+
+# Obtener los valores
+calc <- calcular_param(datos_cancer_def$PCR, predicted_classes)
+
+imprimir_param(calc)
+```
+Igualmente podremos destacar que aunque el accuracy sea elevado (81% de las veces predice bien),  vemos que la sensibilidad es muy baja. Si un modelo tiene alta precisión pero baja sensibilidad como es nuestro caso, la razón es tener muchos falsos negativos. Esto significa que el modelo no está detectando correctamente a individuos enfermos  (casos positivos). Esto podría llevar a un retraso en el diagnóstico y tratamiento adecuado.
+
+Es por eso que el accuracy no es una buena métrica en este caso para decir que tan bueno es el modelo, nos basaremos más en el AUC, y en caso de verlo oportuno, consideraremos un mejor uso de la función _ifelse_ que sirve para discretizar las predicciones actualmente estamos trabajando como se hace en la mayoría de los casos donde se redondea al 1 a partir del 0,5. Podríamos considerar cambiar este umbral para aumentar o disminuir la sensibilidad pero posiblemente sacrificando la especificidad. 
+
+
+## **Validación interna de los modelos:**
+
+Su objetivo principal es asegurarse de que el modelo no esté simplemente memorizando los datos de entrenamiento y que pueda aprender patrones y relaciones que sean relevantes para datos nuevos.
+
+### **división de datos:**
+
+Como se ha mencionado anteriormente, el ejemplo mostrado para ejemplificar las métricas de evaluación es un modelo en el cual no tendremos certeza de que tan bueno es al ser testeado con datos que fueron usados en su entrenamiento, no sé evalua con datos nunca antes visto. Para estos casos lo mejor es dividir el dataset en porciones.
+
+A continuación una función similar a _createDataPartition(datos_cancer_def$PCR, p = 0.7, list = FALSE)_:
+
+```{r division de datos}
+dividir_datos <- function(datos, porcentaje = 0.7, semilla = 69) {
+ # Establecer la semilla para la reproducibilidad
+ set.seed(semilla)
+  
+ # Calcular el número de filas para el conjunto de entrenamiento
+ n_entrenamiento <- floor(porcentaje * nrow(datos))
+  
+ # Crear índices para el conjunto de entrenamiento
+ indices_entrenamiento <- sample(1:nrow(datos), size = n_entrenamiento)
+  
+  
+ return(indices_entrenamiento)
+}
+#indices=dividir_datos(datos_cancer,70)
+```
+Uso una semilla porque al estar trabajando en Rmarkdown en un trabajo que consiste gran parte en el análisis de resultados, considero que es necesario tener una constancia en los mismos. No sirve de nada que explique los aspectos de una salida si al volver a compilar me darán valores similares, pero no iguales. La semilla permite replicar los números obtenidos aleatoriamente sin perderlo al volver a compilar.
+
+#### **Creación de un modelo:**
+
+En esta ocasión se creará un modelo correctamente, siguiendo una división de datos en un 70% que será usado para entrenar el modelo y el 30% restante para testearlo y obtener métricas que expresen con certeza como se comporta el modelo ante datos futuros:
+
+```{r, warning=FALSE, message=FALSE}
+# Cargar la biblioteca necesaria
+library(MASS)
+library(caret)
+# Dividir los datos en conjuntos de entrenamiento y prueba
+set.seed(69) # Para reproducibilidad
+indices <- createDataPartition(datos_cancer_def$PCR, p = 0.7, list = FALSE) #al final no usaré el dividir_datos
+datos_entrenamiento <- datos_cancer_def[indices, ]
+datos_prueba <- datos_cancer_def[-indices, ]
+
+# Entrenar el modelo de regresión logística sin la columna Muestra
+modelo <- glm(PCR ~ ., data = datos_entrenamiento, family = "binomial")
+
+# Realizar predicciones en el conjunto de prueba
+predicciones <- predict(modelo, newdata = datos_prueba, type = "response")
+predicted_classes2 <- ifelse(predicciones > 0.5, 1, 0)
+
+calc2 <- calcular_param(datos_prueba$PCR, predicted_classes2)
+imprimir_param(calc2)
+```
+Podemos observar como las métricas son similares a las vistas anteriormente, aunque un poco menos precisas como es de esperarse (estamos teniendo menos entrenamiendo y se testea con datos nunca vistos), pero aún siguen presentando varios problemas como una baja precisión, sensibilidad y área bajo la curva. Este modelo no es bueno y aplicarlo para predecir posibles ppacientes con cáncer sería una mala idea. 
+
+### **Holdout:**
+
+El método _Holdout_, también conocido como validación simple o método de retención, es una técnica de validación interna ampliamente utilizada en el aprendizaje automático para evaluar el rendimiento de un modelo en datos no vistos durante el entrenamiento.
+
+En este enfoque, se divide el conjunto de datos disponible en dos subconjuntos:
+
+Conjunto de entrenamiento: Representa la mayor parte de los datos normalmente se usán rangos como **0.6, 0.7 y hasta 0.8**, y se utiliza para entrenar el modelo de aprendizaje automático.
+Conjunto de validación (Holdout): Representa la porción restante de los datos (alrededor del 20%, 30% o 40% restante), y se utiliza para evaluar el rendimiento del modelo entrenado en el conjunto de entrenamiento.
+```{r holdOut, message=FALSE}
+library(MASS)
+library(caret)
+
+# Definir la función HoldOut
+HoldOut <- function(datos, num = 1, semilla = 69, mostrar = TRUE) {
+  set.seed(semilla)
+  proporciones <- c(0.6, 0.7, 0.8)
+  mejor_proporcion <- 0
+  mejor_AUC <- 0
+  mejores_parametros <- NULL
+  
+  for (proporcion_entrenamiento in proporciones) {
+    parametros_mejor_AUC <- NULL
+    metrics <- NULL
+    
+    for (i in 1:num) {
+      # Dividir los datos en conjuntos de entrenamiento y prueba
+      indices <- createDataPartition(datos$PCR, p = proporcion_entrenamiento, list = FALSE)
+      datos_entrenamiento <- datos[indices, ]
+      datos_prueba <- datos[-indices, ]
+      
+      # Entrenar el modelo de regresión logística sin la columna Muestra
+      modelo <- glm(PCR ~ ., data = datos_entrenamiento, family = "binomial")
+      
+      # Realizar predicciones en el conjunto de prueba
+      predicciones <- predict(modelo, newdata = datos_prueba, type = "response")
+      predicted_classes <- ifelse(predicciones > 0.5, 1, 0)
+      
+      metrics_repe <- calcular_param(datos_prueba$PCR, predicted_classes)
+
+      if (is.null(metrics)) {
+        metrics <- metrics_repe
+      } else {
+        metrics <- metrics + metrics_repe
+        }
+    }
+    
+    # Calcular la precisión promedio para esta proporción
+    AUC_promedio <- metrics[6] / num
+    # Actualizar la mejor proporción si se encuentra una precisión mejor
+    if (AUC_promedio > mejor_AUC) {
+      mejor_AUC <- AUC_promedio
+      mejor_proporcion <- proporcion_entrenamiento
+      mejores_parametros <- metrics/num
+    }
+  }
+  
+   if (mostrar) {
+    cat("La mejor proporción es", mejor_proporcion, "con un AUC promedio de", round(mejor_AUC,digits = 2), "\n")
+  }
+  mejores_parametros <- round(mejores_parametros, digits = 2)
+  # Devolver la mejor precisión y los demás parámetros para esa precisión
+  return(mejores_parametros)
+}
+
+#uso de la función
+cat("-Esto es un ejemplo de Holdout simple:", "\n")
+parametros <- HoldOut(datos_cancer_def,num = 1,semilla = 7,mostrar = TRUE)
+#imprimir_param(parametros) si quiero ver más especifico sus demás paramétros
+
+cat("-Podremos empezar a comparar los datos originales con el caso oversampling", "\n")
+parametros <- HoldOut(datos_oversampling,num = 1,semilla = 7,mostrar = TRUE)
+#imprimir_param(parametros)si quiero ver más especifico sus demás paramétros
+```
+El método HoldOut se destaca por su eficiencia y simplicidad en la validación de modelos de aprendizaje automático. Su implementación requiere de una división única del conjunto de datos en entrenamiento y validación, lo que minimiza el uso de recursos computacionales. A pesar de su simplicidad, HoldOut proporciona información valiosa sobre el rendimiento del modelo en datos no vistos durante el entrenamiento. Esto permite evaluar la capacidad del modelo para generalizar bien y evitar el sobreajuste.
+
+Por otro lado, también se debe empezar a notar que efectivamente el oversampling a pesar de implicar la creación de copias sintéticas de las instancias de la clase minoritaria para aumentar su número y equilibrar la distribución del conjunto de datos. Esto permite que el modelo de aprendizaje automático aprenda mejor las características de la clase minoritaria y mejore su rendimiento en la clasificación de estas instancias.
+
+### **Repeated-Holdout:**
+
+El Repeated Holdout, también conocido como Holdout repetido o Holdout múltiple, es una variante del método Holdout simple que busca mejorar la robustez y la confiabilidad de la estimación del rendimiento de un modelo de aprendizaje automático.
+
+A diferencia del Holdout simple, que utiliza una única división de datos en entrenamiento y validación, el Repeated Holdout realiza múltiples divisiones aleatorias del conjunto de datos y evalúa el rendimiento del modelo en cada una de ellas. Si antes el usar holdout implicaba tener más certeza en los resultados, al usar el repeated obtenemos datos más consistentes que no varíen tanto por el azar.
+
+El método anterior esta escrito de tal modo que sé pueda usar para holdout o repeated holdout, solo hace falta darle un número de repeticiones al llamarla:
+
+```{r repeated Holdout, message=FALSE, warning=FALSE}
+#uso de la función
+cat("-Esto es un ejemplo de repeated Holdout:", "\n")
+parametros <- HoldOut(datos_cancer_def,num = 30,semilla = 7,mostrar = TRUE)
+#imprimir_param(parametros) si quiero ver más especifico sus demás paramétros
+
+cat("Lo mismo pero con oversampling", "\n")
+parametros <- HoldOut(datos_oversampling,num = 30,semilla = 7,mostrar = TRUE)
+#imprimir_param(parametros)si quiero ver más especifico sus demás paramétros
+```
+Observamos que al aumentar el número de repeticiones se aumenta el coste computacional al crear tantos modelos y evaluarlos, en este caso podemos observar cómo cambiaron en una centena los resultados, pero aún más importante, la mejor porción en el caso de oversampling fue usar 80% de datos para entrenamiento y 20% de testeo, en vez de seguir con 0.7.
+Estos datos siguen siendo igual de analizables que en el apartado anterior, pero nos dejan una mayor confianza de no estar observando evaluaciones muy positivas.
+
+### **Método de “k-fold Cross Validation”**
+
+k-fold Cross Validation (Validación Cruzada k-Veces) es una técnica robusta para evaluar el rendimiento de modelos de aprendizaje automático. Divide los datos en k subgrupos, utiliza cada uno como conjunto de validación una vez, entrena el modelo en el resto y promedia las métricas de rendimiento.
+
+Esto reduce el sesgo, aumenta la confiabilidad y permite comparar modelos. Es ideal para conjuntos de datos de cualquier tamaño, pero requiere más cómputo que métodos como Holdout. Se recomienda cuando se necesita una estimación precisa del rendimiento o se comparan varios modelos.
+
+*k-fold Cross Validation se considera el método de validación interna más robusto y confiable, pero también requiere más recursos computacionales.*
+```{r KFOLD, message=FALSE}
+k_fold_cross_validation <- function(data, k = 10, semilla=69) {
+  # Shuffle the data
+  set.seed(semilla)
+  shuffled_data <- data[sample(nrow(data)), ]
+  
+  # Calculate the number of rows in each fold
+  fold_size <- floor(nrow(data) / k)
+  
+  metrics <- NULL
+  
+  for (i in 1:k) {
+    # Define the start and end indices for the current fold
+    start_index <- ((i - 1) * fold_size) + 1
+    end_index <- min(i * fold_size, nrow(data))
+    
+    # Extract the current fold for validation
+    validation_data <- shuffled_data[start_index:end_index, ]
+    
+    # Use the rest of the data for training
+    training_data <- rbind(shuffled_data[1:start_index-1, ], shuffled_data[end_index+1:nrow(shuffled_data), ])
+    
+    # Train the model on the training data (using default model)
+    model <- glm(PCR ~ ., data = training_data, family = "binomial")
+    
+    # Make predictions on the validation set
+    predicted_classes <- ifelse(predict(model, newdata = validation_data, type = "response") > 0.5, 1, 0)
+    
+    # Calculate metrics
+    current_metrics <- calcular_param(validation_data$PCR, predicted_classes)
+    
+    # Add current fold metrics to the overall metrics
+    if (is.null(metrics)) {
+      metrics <- current_metrics
+    } else {
+      metrics <- metrics + current_metrics
+    }
+  }
+  
+  # Calculate mean of metrics
+  metrics_mean <- metrics / k
+  metrics_mean <- round(metrics_mean, digits = 3)
+  # Return the mean metrics
+  return(metrics_mean)
+}
+cat("K-fold cross validation con el dataset limpio:", "\n")
+calc <- k_fold_cross_validation(datos_cancer_def, k = 5, semilla = 7)
+imprimir_param(calc)
+cat("K-fold cross validation con oversampling:", "\n")
+calc <- k_fold_cross_validation(datos_oversampling)
+imprimir_param(calc)
+```
+Con estos valores podremos tener un buen análisis de que podría pasar en nuestro modelo sin tener riesgos de malentendidos como sobrentrenamiento. La verdad que los resultados sigue siendo muy similar pero vemos como cada uno muestra una pequeña diferencia de centenas que corresponde a un método que es más o menos fiables. Con k-fold contamos la mayor seguridad.
+
+
+#  **Búsqueda exhaustiva:**
+
+Ahora que sabemos evaluar los modelos, es momento de trabajar de verdad. Hasta el momento solo se han optado por 2 modelos, 1 con todas las variables incluyendo los 2 tipos de edades y otro formado por las variables dadas por el stepAIC. Pero ninguna de las dos opciones tiene que ser el mejor modelo. El stepAIC como fue mencionado es un algoritmo que nos proporciona unas buenas variables, pero no es un algoritmo  que revise todas las posibilidades. 
+
+En cambio, el siguiente código si lo hace, el código implementado a continuación realiza una búsqueda exhaustiva de las mejores combinaciones de variables predictoras para un modelo de aprendizaje automático y proporciona una tabla con las métricas de todas ellas para que sea muy fácil observar todos los casos.
+
+El código implementado realiza una búsqueda exhaustiva de las mejores combinaciones de variables predictoras para un modelo de aprendizaje automático, se decidé si usará repeated Hold out o k-fold según el parametro de entrada que reciba.
+
+```{r buscar_todos_modelos, message=FALSE}
+buscar_todos_modelos <- function(datos, variable_evento, num_rep=0, folds=0) {
+  # Obtener todas las combinaciones de variables predictoras
+  variables <- colnames(datos)
+  variables <- variables[variables != variable_evento]  # Excluir la variable objetivo
+  combinaciones <- lapply(1:length(variables), function(n) combn(variables, n))
+
+  # Inicializar una lista para almacenar los resultados
+  resultados <- list()
+
+  # Iterar sobre todas las combinaciones
+  for (i in 1:length(combinaciones)) {
+    for (j in 1:ncol(combinaciones[[i]])) {
+      predictoras <- c(combinaciones[[i]][, j], variable_evento)
+      datos_filtrados <- datos[, predictoras]
+      
+        if (num_rep != 0) {
+         # Llamar a la función HoldOut con num_repeticiones=num_rep
+          parametros <- HoldOut(datos_filtrados, num = num_rep, mostrar = FALSE)
+        } else if (folds != 0) {
+         # Llamar a la función k_fold_cross_validation con k=k
+           parametros <- k_fold_cross_validation(data = datos_filtrados, k = folds)
+        } else {
+         # Salir y finalizar la ejecución de la función
+          stop("Debe introducir o número de repeticiones para Holdout o el K para Kfolds")
+        }
+      
+      
+
+      accuracy <- parametros[1] 
+      precision <- parametros[2]
+      sensibilidad <- parametros[3] 
+      especificidad <- parametros[4]
+      f1_score <- parametros[5] 
+      AUC <- parametros[6]
+      # Guardar los resultados en la lista
+      resultados[[length(resultados) + 1]] <- c(paste(predictoras[-length(predictoras)], collapse = ", "), accuracy, precision, sensibilidad, especificidad, f1_score, AUC)
+    }
+  }
+  
+  # Convertir la lista de resultados en un dataframe
+  resultados_df <- do.call(rbind, resultados)
+  colnames(resultados_df) <- c("Variables",  "Accuracy", "Precision", "Sensibilidad","Especificidad", "F1_score", "AUC")
+  
+  return(resultados_df)
+}
+
+
+```
+
+## **búsqueda exhaustiva para el oversampling usando repeated holdOut con 10 repeticiones:**
+
+A continuación se irá por todas las combinaciones posibles probando el repeated HoldOut y guardando los resultados en una tabla, también se podría modificar la función para devolver solamente las mejores variables, pero me parece que guardar toda la información es más conveniente para este análisis.
+
+```{r tabla_oversampling, message=FALSE}
+library(dplyr)
+
+# Ejemplo de uso
+tabla_oversampling <- buscar_todos_modelos(datos = datos_oversampling, variable_evento = "PCR", num_rep = 10)
+#View(tabla_oversampling)
+
+# Suponiendo que tu dataframe se llama df
+tabla_oversampling <- as.data.frame(tabla_oversampling)
+tabla_oversampling <- arrange(tabla_oversampling, desc(AUC))  # Ordenar por la columna AUC de manera descendente
+head(tabla_oversampling, 10)
+```
+
+Quedando 	Edad, REst, Grado, Fenotipo, edad_umbralizada como el mejor modelo para el caso del dataset con oversampling, aunque edad_umbralizada sea una variable que nace de la variable edad, este agrupamiento se hace partiendo de estudios previos. Tiene sentido de que dicha variable afecte positivamente la predicción, igual podría ser más riguroso y decidir que entre los 3 agrupamientos, el original donde existe más información es mucho mejor, pero que la implementación de edad_umbralizada beneficio bastante al modelo y se puede ver que simplifica bastante la variable edad sin perder datos, más bien otorga una mejor perspectiva a un posible patrón oculto en los datos.
+
+## **búsqueda exhaustiva para el undersampling usando repeated holdOut con 10 repeticiones:**
+
+Tanto Oversampling como undersampling nos muestran resultados muchos mejores que dejar el dataset tal cual, pero la pregunta es cual es mejor, el que propone usar datos ficticios para aprovechar al máximo nuestros datos sin importar el desequilibrio de la variable evento, o under que elimina aquellos datos sobrantes para quedarnos con la cantidad necesaria para trabajar bien.
+
+```{r tabla_underampling, message=FALSE, warning=FALSE}
+library(dplyr)
+# Ejemplo de uso
+tabla_undersampling <- buscar_todos_modelos(datos = datos_undersampling, variable_evento = "PCR", num_rep = 10)
+#View(tabla_oversampling)
+
+# Suponiendo que tu dataframe se llama df
+tabla_undersampling <- as.data.frame(tabla_undersampling)
+tabla_undersampling <- arrange(tabla_undersampling, desc(AUC))  # Ordenar por la columna AUC de manera descendente
+head(tabla_undersampling, 5)  
+```
+Finalmente trabajar con menos datos se nota y otorga un menor rendimiento, sin embargo es un punto curioso que seguirá siendo una opción muy válida a considerar a futuro. Pues los resultados fueron muy buenos igualmente, mucho más superiores a los del dataset con la variable evento desequilibrada, y es de todas las tablas la que más rápidamente se genera, al estar trabajando con tablas con tantas filas el caso de undersampling es más cómodo de modificar al no tomar tanto tiempo de compilar (en fuerza bruta).
+
+## **búsqueda exhaustiva usando kfold para comparar la inclusión de los umbrales de edades:**
+
+Uno de los extras que se considero en este trabajo era las distintas formas de umbralizar la edad, hasta en el resultado previo se mencionó, pero para contrastar he llamado a 2 modelos iguales a excepción que uno incluye las edades umbralizadas y otro no.
+En los resultados se observa como el dataset con las variables edad_umbralizada y edad_binaria son mejores, no por mucho, pero dio la casualidad que para 5 folds, la mejor combinación es una donde no incluye edad, si no edad_umbralizada
+
+```{r edades_comparar, message=FALSE}
+library(dplyr)
+
+# Ejemplo de uso
+tabla_cancer <- buscar_todos_modelos(datos = datos_cancer, variable_evento = "PCR", folds = 5)
+#View(tabla_oversampling)
+
+# Suponiendo que tu dataframe se llama df
+tabla_cancer <- as.data.frame(tabla_cancer)
+tabla_cancer <- arrange(tabla_cancer, desc(AUC))  # Ordenar por la columna AUC de manera descendente
+head(tabla_cancer, 5)  # Mostrar las primeras 5 filas
+
+# Ejemplo de uso
+tabla_cancer_edades <- buscar_todos_modelos(datos = datos_cancer_def, variable_evento = "PCR", folds = 5)
+#View(tabla_oversampling)
+
+# Suponiendo que tu dataframe se llama df
+tabla_cancer_edades <- as.data.frame(tabla_cancer_edades)
+tabla_cancer_edades <- arrange(tabla_cancer_edades, desc(AUC))  # Ordenar por la columna AUC de manera descendente
+head(tabla_cancer_edades, 5)  # Mostrar las primeras 5 filas
+```
+
+# **Trabajar con el mejor modelo:**
+Ya habiendo aplicado fuerza bruta. Podemos tener una idea clara de que forma de trabajar el dataset y que variables nos proporcionarán un mejor resultado
+En esta ocasión es el dataset limpio, con las edades umbralizadas y aplicando oversampling
+De donde cogeremos las variables: Edad, REst, Grado, Fenotipo, edad_umbralizada
+
+```{r mejor_modelo, message=FALSE}
+library(dplyr)
+library(caret)
+library(pROC)  # Necesario para la función roc y auc
+
+# Suponiendo que tu dataframe se llama df
+mejor <- datos_oversampling %>%
+  select(Edad, REst, Grado, Fenotipo, edad_umbralizada, PCR)
+calc <- k_fold_cross_validation(mejor, k = 5, semilla = 7)
+imprimir_param(calc)
+
+# Dividir el conjunto de datos en entrenamiento (70%) y prueba (30%)
+indices <- createDataPartition(mejor$PCR, p = 0.7, list = FALSE)
+mejor_entrenamiento <- mejor[indices, ]
+datos_prueba <- mejor[-indices, ]
+
+# Entrenar el modelo de regresión logística
+lr.fit1 <- glm(PCR ~ ., data = mejor_entrenamiento, family = binomial("logit"))
+
+# Realizar predicciones en el conjunto de prueba
+predicciones <- predict(lr.fit1, newdata = datos_prueba, type = "response")
+
+# Convertir las predicciones en clases
+predicted_classes <- ifelse(predicciones > 0.5, 1, 0)
+
+# Calcular la curva ROC
+roc_obj <- roc(datos_prueba$PCR, predicciones)
+
+# Graficar la curva ROC
+plot(roc_obj, main = 'Curva ROC', print.auc = TRUE, auc.polygon = TRUE,
+     grid = TRUE, legacy.axes = TRUE, percent = TRUE)
+
+
+```
+
+Comparada con la primera curva roc generada vemos un gran cambio a mejor. Este trabajo me tome la libertad de centrarme más en experimentar y probar las nuevas herramientas. 
+
+
+# **Conclusiones:**
+
+El objetivo principal de la minería de datos es transformar datos brutos en información procesable y conocimiento útil. Esto implica la identificación de patrones ocultos, la detección de anomalías, la predicción de resultados futuros y la generación de recomendaciones basadas en datos. Para dicho objetivo es vital conocer muchas herramientas y este trabajo es un reflejo de este pensamiento, se reutilizaron métodos y se retomaron apuntes de la primera entrega para abordar el preprocesamiento y problemas a la hora de crear un modelo. Y se conoció muchas nuevas herramientas para evaluar los modelos, usamos métricas de evaluación, como precisión, sensibilidad, especificidad, F1-score, curva ROC y área bajo la curva (AUC), para comprender mejor el rendimiento de nuestro modelo en la clasificación en cada caso. Aplicamos distintos tipos de validación aprendiendo un nuevo punto de vista viendo la diferencia entre los costes computacional para este dataset relativamente pequeño, dándonos pie a recordar lo importante que es considerar métodos de búsqueda exhaustiva como métodos que faciliten hallar una muy buena solución con un coste computacional bajo.
+
+
